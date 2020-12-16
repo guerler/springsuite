@@ -1,0 +1,2 @@
+Interaction between NP_000282.1.hhr and NP_000282.1.hhr [min-Z: 875.1].
+Interaction between NP_000282.1.hhr and NP_000290.2.hhr [min-Z: 86.5].

@@ -1,0 +1,108 @@
+<tool id="spring_roc" name="SPRING ROC" version="0.1.0" python_template_version="3.5" license="MIT">
+    <description>plot generator</description>
+    <requirements>
+        <requirement type="package" version="3.3.3">matplotlib</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python3 '$__tool_directory__/spring_roc.py' -i '$input' -b '$database' -e '$experiment.type' -m '$experiment.method' -t '$throughput' -l '$sampling.locations' -r '$sampling.regions' -n '$sampling.negative' -o '$rocplot'
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="tabular" label="Interacting Pairs" help="Prediction input containing UniProt Accession codes (2-columns)."/>
+        <conditional name="sampling">
+            <param name="type" type="select" label="Non-interacting Pairs" display="radio" help="Specify how to determine non-interacting pairs.">
+                <option value="random">Random Sampling</option>
+                <option value="uniprot">Sampling with UniProt Localization</option>
+                <option value="negative">Specify non-interacting pairs</option>
+            </param>
+            <when value="uniprot">
+                <param name="locations" type="data" format="tabular" label="UniProt Localization Database" help="UniProt tabular export with localization column to sample non-interacting pairs." />
+                <param name="negative" type="hidden" value="" />
+                <param name="regions" type="select" multiple="True" label="Choose Subcellular Locations">
+                    <option value="Membrane" selected="True">Membrane</option>
+                    <option value="Mitochondrion" selected="True">Mitochondrion</option>
+                    <option value="Nucleus">Nucleus</option>
+                    <option value="Secreted">Secreted</option>
+                 </param>
+            </when>
+            <when value="random">
+                <param name="negative" type="hidden" value="" />
+                <param name="locations" type="hidden" value="" />
+                <param name="regions" type="hidden" value="" />
+            </when>
+            <when value="negative">
+                <param name="locations" type="hidden" value="" />
+                <param name="negative" type="data" format="tabular" label="Non-interacting Pairs" help="Tabular file containing non-interacting pairs (2-columns)." />
+                <param name="regions" type="hidden" value="" />
+            </when>
+        </conditional>
+        <param name="database" type="data" format="tabular" label="BioGRID Database" help="BioGRID Database in TAB 3.0 format."/>
+        <conditional name="experiment">
+            <param name="type" type="select" label="Experimental Type" display="radio" help="Choose a specific experimental system type.">
+                <option value="">Any</option>
+                <option value="physical">Physical</option>
+                <option value="genetic">Genetic</option>
+            </param>
+            <when value="physical">
+                <param name="method" type="select" label="Experimental Method" help="Choose a specific experimental method name.">
+                    <option value="">Any</option>
+                    <option value="Affinity Capture">Affinity Capture-Any</option>
+                    <option value="Affinity Capture-Luminescence"></option>
+                    <option value="Affinity Capture-MS">Affinity Capture-MS</option>
+                    <option value="Affinity Capture-RNA">Affinity Capture-RNA</option>
+                    <option value="Affinity Capture-Western">Affinity Capture-Western</option>
+                    <option value="Biochemical Activity">Biochemical Activity</option>
+                    <option value="Co-crystal Structure">Co-crystal Structure</option>
+                    <option value="Co-fractionation">Co-fractionation</option>
+                    <option value="Co-localization">Co-localization</option>
+                    <option value="Co-purification">Co-purification</option>
+                    <option value="Far Western">Far Western</option>
+                    <option value="FRET">FRET</option>
+                    <option value="PCA">PCA</option>
+                    <option value="Protein-peptide">Protein-peptide</option>
+                    <option value="Protein-RNA">Protein-RNA</option>
+                    <option value="Proximity Label-MS">Proximity Label-MS</option>
+                    <option value="Reconstituted Complex">Reconstituted Complex</option>
+                    <option value="Two-hybrid">Two-hybrid</option>
+                </param>
+            </when>
+            <when value="genetic">
+                <param name="method" type="hidden" value="" />
+            </when>
+            <when value="">
+                <param name="method" type="hidden" value="" />
+            </when>
+        </conditional>
+        <param name="throughput" type="select" label="Experimental Throughput" display="radio" help="Choose the experimental throughput grade.">
+            <option value="">Any</option>
+            <option value="Low Throughput">Low</option>
+            <option value="High Throughput">High</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data format="png" name="rocplot" label="SPRING ROC Image" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" value="roc/human_hv1h2.txt" />
+            <param name="database" value="roc/biogrid_fret.txt" />
+            <output name="output" file="roc/human_hv1h2.png" />
+        </test>
+    </tests>
+    <help><![CDATA[
+This tool generates a ROC plot for a given 2-column tabular prediction file containing UniProt Accession codes. The prediction is compared
+to a given BioGRID database file in TAB 3.0 format. Non-interacting protein pairs are randomly sampled. Optionally, users may filter the BioGRID database by
+choosing a specific experimental method.
+    ]]></help>
+    <citations>
+        <citation type="bibtex">
+@misc{githubhh-suite,
+author = {Guerler, Govindarajoo, Zhang},
+year = {2013},
+title = {Mapping Monomeric Threading to Protein-Protein Structure Prediction},
+publisher = {ACS Publications},
+journal = {Journal of Chemical Information and Modeling},
+url = {https://pubs.acs.org/doi/10.1021/ci300579r},
+}
+        </citation>
+    </citations>
+</tool>

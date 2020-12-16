@@ -1,0 +1,43 @@
+<tool id="spring_map" name="SPRING Map" version="0.1.0" python_template_version="3.5" license="MIT">
+    <description>with BLAST</description>
+    <requirements>
+        <requirement type="package" version="2.10.1">blast</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python3 '$__tool_directory__/spring_map.py' -l '$list' -i '$index' -d '$database' -c '$cross' -o '$output' -g '$log'
+    ]]></command>
+    <inputs>
+        <param format="tabular" name="list" type="data" label="PDB Chain Identifiers" help="List of PDB chains `PDB_CHAIN`."/>
+        <param format="ffindex" name="index" type="data" label="PDB Database Index" help="Database Index file."/>
+        <param format="ffdata" name="database" type="data" label="PDB Database" help="Database Data file."/>
+        <param format="tabular" name="cross" type="data" label="Cross Reference (unmapped)" help="Unmapped SPRING PDB Cross Reference as produced by SPRING Cross tool."/>
+    </inputs>
+    <outputs>
+        <data format="tabular" name="output" label="SPRING Map Cross Reference"/>
+        <data format="txt" name="log" label="SPRING Map Log"/>
+    </outputs>
+    <help><![CDATA[
+Creates additional columns for the SPRING cross reference containing the chain identifier of the homologues from the template library.
+    ]]></help>
+    <tests>
+        <test>
+            <param name="list" value="map/chains.tabular" />
+            <param name="index" value="cross/pdb.ffindex" />
+            <param name="database" value="cross/pdb.ffdata" />
+            <param name="cross" value="cross/reference.tabular" />
+            <output name="output" file="map/mapped.reference.tabular"/>
+        </test>
+    </tests>
+    <citations>
+        <citation type="bibtex">
+@misc{githubhh-suite,
+author = {Guerler, Govindarajoo, Zhang},
+year = {2013},
+title = {Mapping Monomeric Threading to Protein-Protein Structure Prediction},
+publisher = {ACS Publications},
+journal = {Journal of Chemical Information and Modeling},
+url = {https://pubs.acs.org/doi/10.1021/ci300579r},
+}
+        </citation>
+    </citations>
+</tool>
