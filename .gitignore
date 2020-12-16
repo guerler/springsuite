@@ -1,0 +1,7 @@
+spring/PDB/NWalign/nwalign.cpython-36m-x86_64-linux-gnu.so
+spring/PDB/TMalign/build/
+spring/PDB/TMalign/tmalign.cpython-36m-x86_64-linux-gnu.so
+spring/PDB/TMscore/TMscoreMod.cpython-36m-x86_64-linux-gnu.so
+spring/PDB/__pycache__/
+__pycache__/
+.DS_Store
