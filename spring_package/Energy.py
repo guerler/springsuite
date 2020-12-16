@@ -10,7 +10,7 @@ class Energy:
     def __init__(self):
         self.dfire = list()
         dirPath = dirname(realpath(__file__))
-        with open("%s/dfire/dfire.txt" % dirPath) as file:
+        with open("%s/Energy.data" % dirPath) as file:
             for line in file:
                 self.dfire.append(float(line))
 
