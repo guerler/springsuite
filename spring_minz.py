@@ -5,14 +5,19 @@ from spring_package.Utilities import getCrossReference, getTemplates
 
 
 def main(args):
-    logFile = open(args.log, 'a+')
+    minScore = args.minscore
+    logFile = open(args.log, 'w')
     targets = list()
     targetPath = args.targetpath.rstrip("/")
+    hhrResults = dict()
     with open(args.targetlist) as file:
         for line in file:
             name = line.strip()
             targets.append(name)
     print("Loaded %s target names from `%s`." % (len(targets), args.targetlist))
+    for targetName in targets:
+        targetFile = "%s/%s" % (targetPath, targetName)
+        hhrResults[targetName] = getTemplates(targetFile, minScore)
     if args.inputlist:
         inputs = list()
         inputPath = args.inputpath.rstrip("/")
@@ -21,18 +26,20 @@ def main(args):
                 name = line.strip()
                 inputs.append(name)
         print("Loaded %s input names from `%s`." % (len(inputs), args.inputlist))
+        for inputName in inputs:
+            if inputName not in hhrResults:
+                inputFile = "%s/%s" % (inputPath, inputName)
+                hhrResults[inputName] = getTemplates(inputFile, minScore)    
     else:
         inputs = targets
-        inputPath = targetPath
+    print("Loaded hhr results for %s entries." % len(hhrResults.keys()))
     crossReference = getCrossReference(args.cross)
     print("Loaded cross reference from `%s`." % args.cross)
     interactions = dict()
     for targetName in targets:
-        targetFile = "%s/%s" % (targetPath, targetName)
-        matchScores(targetFile=targetFile,
+        matchScores(hhrResults=hhrResults,
                     targetName=targetName,
                     inputs=inputs,
-                    inputPath=inputPath,
                     crossReference=crossReference,
                     minScore=args.minscore,
                     logFile=logFile,
@@ -46,40 +53,38 @@ def main(args):
     logFile.close()
 
 
-def matchScores(targetFile, targetName, inputs, inputPath, crossReference,
-                minScore, logFile, interactions):
-    targetTop, targetHits = getTemplates(targetFile, minScore)
-    if not targetHits:
-        print("No targets found `%s`" % targetFile)
+def matchScores(hhrResults, targetName, inputs, crossReference, minScore, logFile, interactions):
+    if targetName not in hhrResults:
+        print("Target not found `%s`" % targetName)
     else:
-        print("Loaded target scores from `%s`." % targetFile)
+        targetTop, targetHits = hhrResults[targetName]
+        print("Loaded target scores for `%s`." % targetName)
         for inputName in inputs:
-            inputFile = "%s/%s" % (inputPath, inputName)
-            inputTop, inputHits = getTemplates(inputFile, minScore)
-            minZ = 0
-            minInfo = ""
-            for t in targetHits:
-                if t in crossReference:
-                    partners = crossReference[t]["partners"]
-                    for p in partners:
-                        if p in inputHits:
-                            score = min(targetHits[t], inputHits[p])
-                            if score > minZ:
-                                minZ = score
-                                minInfo = "%s\t%s\t%s\t%s" % (targetTop,
-                                                              inputTop, t, p)
-            if minZ > minScore:
-                if targetName > inputName:
-                    interactionKey = "%s_%s" % (targetName, inputName)
-                else:
-                    interactionKey = "%s_%s" % (inputName, targetName)
-                if interactionKey in interactions:
-                    if interactions[interactionKey]["minZ"] >= minZ:
-                        continue
-                interactions[interactionKey] = dict(targetName=targetName,
-                                                    inputName=inputName,
-                                                    minZ=minZ, minInfo=minInfo)
-                logFile.write("Interaction between %s and %s [min-Z: %s].\n" % (targetName, inputName, minZ))
+            if inputName in hhrResults:
+                inputTop, inputHits = hhrResults[inputName]
+                minZ = 0
+                minInfo = ""
+                for t in targetHits:
+                    if t in crossReference:
+                        partners = crossReference[t]["partners"]
+                        for p in partners:
+                            if p in inputHits:
+                                score = min(targetHits[t], inputHits[p])
+                                if score > minZ:
+                                    minZ = score
+                                    minInfo = "%s\t%s\t%s\t%s" % (targetTop, inputTop, t, p)
+                if minZ > minScore:
+                    if targetName > inputName:
+                        interactionKey = "%s_%s" % (targetName, inputName)
+                    else:
+                        interactionKey = "%s_%s" % (inputName, targetName)
+                    if interactionKey in interactions:
+                        if interactions[interactionKey]["minZ"] >= minZ:
+                            continue
+                    interactions[interactionKey] = dict(targetName=targetName,
+                                                        inputName=inputName,
+                                                        minZ=minZ, minInfo=minInfo)
+        logFile.write("Evaluated: %s.\n" % (targetName))
 
 
 if __name__ == "__main__":
@@ -91,6 +96,6 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--cross', help='PDB Cross Reference', required=True)
     parser.add_argument('-o', '--output', help='Output file containing min-Z scores', required=True)
     parser.add_argument('-l', '--log', help='Log file', required=True)
-    parser.add_argument('-m', '--minscore', help='min-Z score threshold', type=int, default=10)
+    parser.add_argument('-m', '--minscore', help='min-Z score threshold', type=int, default=25)
     args = parser.parse_args()
     main(args)
