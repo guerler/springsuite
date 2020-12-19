@@ -29,7 +29,7 @@ def main(args):
         for inputName in inputs:
             if inputName not in hhrResults:
                 inputFile = "%s/%s" % (inputPath, inputName)
-                hhrResults[inputName] = getTemplates(inputFile, minScore)    
+                hhrResults[inputName] = getTemplates(inputFile, minScore)
     else:
         inputs = targets
     print("Loaded hhr results for %s entries." % len(hhrResults.keys()))
@@ -58,7 +58,8 @@ def matchScores(hhrResults, targetName, inputs, crossReference, minScore, logFil
         print("Target not found `%s`" % targetName)
     else:
         targetTop, targetHits = hhrResults[targetName]
-        print("Loaded target scores for `%s`." % targetName)
+        print("Evaluating %s." % targetName)
+        logFile.write("Evaluating %s.\n" % targetName)
         for inputName in inputs:
             if inputName in hhrResults:
                 inputTop, inputHits = hhrResults[inputName]
@@ -84,7 +85,6 @@ def matchScores(hhrResults, targetName, inputs, crossReference, minScore, logFil
                     interactions[interactionKey] = dict(targetName=targetName,
                                                         inputName=inputName,
                                                         minZ=minZ, minInfo=minInfo)
-        logFile.write("Evaluated: %s.\n" % (targetName))
 
 
 if __name__ == "__main__":

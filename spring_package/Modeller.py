@@ -20,12 +20,14 @@ def createMonomer(resultFile, identifier, pdbDatabase, outputName):
     template = Molecule(outputName)
     pdbChain = getChain(identifier)
     if pdbChain not in template.calpha:
-        raise Exception("Chain not found in template [%s]" % pdbChain)
+        print("Chain not found in template [%s]" % pdbChain)
+        return False
     chain = template.calpha[pdbChain]
     alignment = Alignment(resultFile)
     alignment.createModel(chain)
     template.saveChain(pdbChain, outputName)
     system("./build/pulchra %s" % outputName)
+    return True
 
 
 def TMalign(fileA, fileB, tmName="temp/tmalign"):
@@ -116,8 +118,12 @@ def createModel(args):
     pdbDatabase = DBKit(args.index, args.database)
     crossReference = getCrossReference(args.cross)
     interfaceEnergy = Energy()
-    createMonomer(args.a_hhr, aTop, pdbDatabase, "temp/monomerA.pdb")
-    createMonomer(args.b_hhr, bTop, pdbDatabase, "temp/monomerB.pdb")
+    success = createMonomer(args.a_hhr, aTop, pdbDatabase, "temp/monomerA.pdb")
+    if not success:
+        return
+    success = createMonomer(args.b_hhr, bTop, pdbDatabase, "temp/monomerB.pdb")
+    if not success:
+        return
     maxScore = -9999
     maxInfo = None
     minScore = float(args.minscore)
