@@ -67,7 +67,6 @@
             </conditional>
             <param name="crossreference" value="minz/pdb70_random.txt"/>
             <output name="output" file="minz/pdb70_result.1.txt"/>
-            <output name="log" file="minz/pdb70_log.txt"/>
         </test>
     </tests>
     <help><![CDATA[
