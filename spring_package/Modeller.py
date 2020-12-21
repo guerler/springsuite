@@ -139,11 +139,8 @@ def createModel(args):
             bTemplateChain = "%s_0" % bTemplateChain
         print("Evaluating chain %s and %s..." % (aTemplate, bTemplate))
         biomolFound = False
-        for biomolNumber in range(len(templateMolecule.biomol.keys())):
-            if biomolNumber == 0:
-                bioMolecule = templateMolecule
-            else:
-                bioMolecule = templateMolecule.createUnit(biomolNumber)
+        for biomolNumber in templateMolecule.biomol:
+            bioMolecule = templateMolecule.createUnit(biomolNumber)
             if (len(bioMolecule.calpha.keys()) > 1
                and aTemplateChain in bioMolecule.calpha
                and bTemplateChain in bioMolecule.calpha):

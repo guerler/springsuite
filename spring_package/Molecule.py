@@ -86,28 +86,31 @@ class Molecule:
         matLine = list(map(lambda x: self.toFloat(x), matLine))
         return matId, matLine
 
-    def createUnit(self, biomolNumber=1):
-        molecule = Molecule()
-        chainCount = dict()
-        for matrixDict in self.biomol[biomolNumber]:
-            for chain in matrixDict["chains"]:
-                if chain in self.calpha:
-                    chainCopy = dict()
-                    for residue in self.calpha[chain]:
-                        chainCopy[residue] = self.calpha[chain][residue].copy()
-                    for atomNumber in chainCopy:
-                        atom = chainCopy[atomNumber]
-                        rotmat = matrixDict["matrix"]
-                        self.applyMatrix(atom, rotmat)
-                    if chain in chainCount:
-                        chainCount = chainCount[chain]
-                        chainName = "%s_%d" % (chain, chainCount)
-                        chainCount[chain] = chainCount + 1
-                    else:
-                        chainName = chain
-                        chainCount[chain] = 0
-                    molecule.calpha[chainName] = chainCopy
-        return molecule
+    def createUnit(self, biomolNumber=0):
+        if biomolNumber == 0:
+            return self
+        else:
+            molecule = Molecule()
+            chainCount = dict()
+            for matrixDict in self.biomol[biomolNumber]:
+                for chain in matrixDict["chains"]:
+                    if chain in self.calpha:
+                        chainCopy = dict()
+                        for residue in self.calpha[chain]:
+                            chainCopy[residue] = self.calpha[chain][residue].copy()
+                        for atomNumber in chainCopy:
+                            atom = chainCopy[atomNumber]
+                            rotmat = matrixDict["matrix"]
+                            self.applyMatrix(atom, rotmat)
+                        if chain in chainCount:
+                            chainCount = chainCount[chain]
+                            chainName = "%s_%d" % (chain, chainCount)
+                            chainCount[chain] = chainCount + 1
+                        else:
+                            chainName = chain
+                            chainCount[chain] = 0
+                        molecule.calpha[chainName] = chainCopy
+            return molecule
 
     def getSequence(self, chainName):
         seq = ""

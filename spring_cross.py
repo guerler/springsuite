@@ -35,12 +35,8 @@ def main(args):
             logFile.write("Processing %s, chain %s.\n" % (pdb, pdbChain))
             logFile.write("Found %d biomolecule(s).\n" % len(mol.biomol.keys()))
             for biomolNumber in mol.biomol:
-                if biomolNumber == 0:
-                    logFile.write("Processing biomolecule.\n")
-                    bioMolecule = mol
-                else:
-                    logFile.write("Processing biomolecule %d.\n" % biomolNumber)
-                    bioMolecule = mol.createUnit(biomolNumber)
+                logFile.write("Processing biomolecule %d.\n" % biomolNumber)
+                bioMolecule = mol.createUnit(biomolNumber)
                 nChains = len(bioMolecule.calpha.keys())
                 if nChains > 1 and pdbChain in bioMolecule.calpha:
                     for bioChain in bioMolecule.calpha:
