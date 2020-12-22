@@ -18,9 +18,12 @@
                 <param name="locations" type="data" format="tabular" label="UniProt Localization Database" help="UniProt tabular export with localization column to sample non-interacting pairs." />
                 <param name="negative" type="hidden" value="" />
                 <param name="regions" type="select" multiple="True" label="Choose Subcellular Locations">
+                    <option value="Cell">Cell</option>
+                    <option value="Cytoplasm">Cytoplasm</option>
                     <option value="Membrane" selected="True">Membrane</option>
                     <option value="Mitochondrion" selected="True">Mitochondrion</option>
                     <option value="Nucleus">Nucleus</option>
+                    <option value="Periplasm">Periplasm</option>
                     <option value="Secreted">Secreted</option>
                  </param>
             </when>
