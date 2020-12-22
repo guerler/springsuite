@@ -60,6 +60,7 @@ def matchScores(hhrResults, targetName, inputs, crossReference, minScore, logFil
         targetTop, targetHits = hhrResults[targetName]
         print("Evaluating %s." % targetName)
         logFile.write("Evaluating %s.\n" % targetName)
+        logFile.flush()
         for inputName in inputs:
             if inputName in hhrResults:
                 inputTop, inputHits = hhrResults[inputName]
