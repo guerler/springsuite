@@ -121,7 +121,8 @@ def getXY(prediction, positive, positiveCount, negative):
     xMax = 0
     topCount = 0
     topMCC = 0.0
-    topPrecision = 0.0
+    topFP = 0.0
+    topTP = 0.0
     topScore = 0.0
     tp = 0
     fp = 0
@@ -134,9 +135,6 @@ def getXY(prediction, positive, positiveCount, negative):
         if name in negative:
             found = True
             fp = fp + 1
-        precision = 0.0
-        if tp > 0 or fp > 0:
-            precision = tp / (tp + fp)
         fn = positiveTotal - tp
         tn = negativeTotal - fp
         denom = (tp+fp)*(tp+fn)*(tn+fp)*(tn+fn)
@@ -146,7 +144,8 @@ def getXY(prediction, positive, positiveCount, negative):
                 topMCC = mcc
                 topScore = score
                 topCount = count
-                topPrecision = precision
+                topTP = getPercentage(tp, tp + fn)
+                topFP = getPercentage(fp, fp + tn)
         if found:
             yValue = getPercentage(tp, tp + fn)
             xValue = getPercentage(fp, fp + tn)
@@ -155,57 +154,16 @@ def getXY(prediction, positive, positiveCount, negative):
             xMax = max(xValue, xMax)
         count = count + 1
     print("Top ranking prediction %s." % str(sortedPrediction[0]))
-    print("Total count of prediction set: %s (precision=%1.2f)." %
-          (topCount, topPrecision))
+    print("Total count of prediction set: %s (tp=%1.2f, fp=%1.2f)." %
+          (topCount, topTP, topFP))
     print("Total count of positive set: %s." % len(positive))
     print("Total count of negative set: %s." % len(negative))
     print("Matthews-Correlation-Coefficient: %s at Score >= %s." %
           (round(topMCC, 2), topScore))
-    return x, y, xMax
+    return topFP, topTP, topMCC
 
 
-def main(args):
-    # load source files
-    filterSets = getFilter(args.input)
-    filterKeys = list(filterSets.keys())
-    filterA = filterSets[filterKeys[0]]
-    if len(filterKeys) > 1:
-        filterB = filterSets[filterKeys[1]]
-    else:
-        filterB = filterA
-
-    # identify biogrid filter options
-    filterValues = []
-    if args.method:
-        filterValues.append([11, args.method])
-    if args.experiment:
-        filterValues.append([12, args.experiment])
-    if args.throughput:
-        filterValues.append([17, args.throughput])
-
-    # process biogrid database
-    print("Loading positive set from BioGRID file...")
-    positive, positiveCount = getReference(args.biogrid, aCol=23, bCol=26,
-                                           separator="\t", filterA=filterA,
-                                           filterB=filterB, skipFirstLine=True,
-                                           filterValues=filterValues)
-
-    # rescan biogrid database to identify set of putative interactions
-    if filterValues:
-        print("Filtered entries by (column, value): %s" % filterValues)
-        print("Loading putative set from BioGRID file...")
-        putative, putativeCount = getReference(args.biogrid, aCol=23, bCol=26,
-                                               separator="\t", filterA=filterA,
-                                               filterB=filterB,
-                                               skipFirstLine=True)
-        print("Found %s." % putativeCount)
-    else:
-        putative = positive
-
-    # process prediction file
-    print("Loading prediction file...")
-    prediction, _ = getReference(args.input, scoreCol=2)
-
+def getNegativeSet(args, filterA, filterB, negativeRequired):
     # determine negative set
     print("Identifying non-interacting pairs...")
     negative = set()
@@ -217,7 +175,7 @@ def main(args):
                 nameA = cols[0]
                 nameB = cols[1]
                 key = getKey(nameA, nameB)
-                if key not in putative and key not in negative:
+                if key not in negative:
                     negative.add(key)
     else:
         # get subcellular locations from UniProt export
@@ -244,8 +202,8 @@ def main(args):
         # randomly sample non-interacting pairs
         filterAList = sorted(list(filterA))
         filterBList = sorted(list(filterB))
-        negativeRequired = positiveCount
-        random.seed(0)
+        from datetime import datetime
+        random.seed(datetime.now())
         totalAttempts = int(len(filterAList) * len(filterBList) / 2)
         while totalAttempts > 0:
             totalAttempts = totalAttempts - 1
@@ -257,11 +215,58 @@ def main(args):
                 if locations[nameA] == locations[nameB]:
                     continue
             key = getKey(nameA, nameB)
-            if key not in putative and key not in negative:
+            if key not in negative:
                 negative.add(key)
                 negativeRequired = negativeRequired - 1
                 if negativeRequired == 0:
                     break
+    return negative
+
+
+def main(args):
+    # load source files
+    filterSets = getFilter(args.input)
+    filterKeys = list(filterSets.keys())
+    filterA = filterSets[filterKeys[0]]
+    if len(filterKeys) > 1:
+        filterB = filterSets[filterKeys[1]]
+    else:
+        filterB = filterA
+
+    # identify biogrid filter options
+    filterValues = list()
+    filterValues.append([11, "FRET"])
+
+    # process biogrid database
+    print("Loading positive set from BioGRID file...")
+    positive, positiveCount = getReference(args.biogrid, aCol=23, bCol=26,
+                                           separator="\t", filterA=filterA,
+                                           filterB=filterB, skipFirstLine=True,
+                                           filterValues=filterValues)
+
+    # estimate negative set
+    negative = getNegativeSet(args, filterA, filterB, positiveCount)
+
+    # process prediction file
+    print("Loading prediction file...")
+
+    # identify biogrid filter options
+    xValues = list()
+    yValues = list()
+    for method in ["Two-hybrid", "Affinity", "Biochemical Activity", "Co-localization"]:
+        filterValues = [[11, method]]
+        prediction, _ = getReference(args.biogrid, aCol=23, bCol=26,
+                                     separator="\t", filterA=filterA,
+                                     filterB=filterB, skipFirstLine=True,
+                                     filterValues=filterValues)
+        x, y, mcc = getXY(prediction, positive, positiveCount, negative)
+        xValues.append(x)
+        yValues.append(y)
+
+    prediction, _ = getReference(args.input, scoreCol=2)
+    x, y, mcc = getXY(prediction, positive, positiveCount, negative)
+    xValues.append(x)
+    yValues.append(y)
 
     # create plot
     print("Producing plot data...")
@@ -274,9 +279,7 @@ def main(args):
     if filterValues:
         filterAttributes = list(map(lambda x: x[1], filterValues))
         plt.title("BioGRID filters: %s" % filterAttributes, fontsize=10)
-    x, y, xMax = getXY(prediction, positive, positiveCount, negative)
-    plt.plot(x, y)
-    plt.plot([0, xMax], [0, xMax])
+    plt.scatter(xValues, yValues)
     plt.savefig(args.output, format="png")
 
 

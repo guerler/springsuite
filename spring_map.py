@@ -28,7 +28,7 @@ def getSequences(fileName):
     return sequences
 
 
-def findMatch(identifier, templates, databaseFile, pdbDatabase):
+def findMatch(identifier, templates, databaseFile, pdbDatabase, evalue=0.0):
     if identifier in templates:
         return identifier
     resultSub = identifier[:2]
@@ -50,15 +50,20 @@ def findMatch(identifier, templates, databaseFile, pdbDatabase):
         with open(resultFile) as file:
             for i in range(38):
                 line = next(file)
-            maxMatch = getId(line.split()[0])
+            columns = line.split()
+            maxMatch = getId(columns[0])
+            maxScore = float(columns[2])
+            if maxScore > evalue:
+                return None
     except Exception:
         return None
     return maxMatch
 
 
 def main(args):
+    if not isdir("temp"):
+        mkdir("temp")
     logFile = open(args.log, "w")
-    system("mkdir -p temp")
     templateSequenceFile = "temp/templates.fasta"
     pdbDatabase = DBKit(args.index, args.database)
     templates = set()

@@ -8,6 +8,22 @@ from spring_package.Molecule import Molecule
 from spring_package.Utilities import getName
 
 
+def hasInterface(mol, chainA, chainB, distance=100.0, contacts=5):
+    count = 0
+    for residueA in mol.calpha[chainA]:
+        atomA = mol.calpha[chainA][residueA]
+        for residueB in mol.calpha[chainB]:
+            atomB = mol.calpha[chainB][residueB]
+            dist2 = ((atomA["x"] - atomB["x"]) ** 2 +
+                     (atomA["y"] - atomB["y"]) ** 2 +
+                     (atomA["z"] - atomB["z"]) ** 2)
+            if dist2 < distance:
+                count = count + 1
+                if count >= contacts:
+                    return True
+    return False
+
+
 def main(args):
     logFile = open(args.log, "w")
     if not isdir("temp"):
@@ -42,9 +58,12 @@ def main(args):
                     for bioChain in bioMolecule.calpha:
                         if bioChain == pdbChain:
                             continue
-                        corePdbChain = "%s_%s" % (pdb.upper(), pdbChain[:1])
-                        partnerPdbChain = "%s_%s" % (pdb.upper(), bioChain[:1])
-                        partnerList.add("%s\t%s" % (corePdbChain, partnerPdbChain))
+                        if hasInterface(bioMolecule, pdbChain, bioChain):
+                            corePdbChain = "%s_%s" % (pdb.upper(), pdbChain[:1])
+                            partnerPdbChain = "%s_%s" % (pdb.upper(), bioChain[:1])
+                            partnerList.add("%s\t%s" % (corePdbChain, partnerPdbChain))
+                        else:
+                            logFile.write("Skipping: Chains have no interface [%s, %s].\n" % (pdbChain, bioChain))
                 else:
                     logFile.write("Skipping: Chain not found or single chain [%s].\n" % pdbChain)
             logFile.flush()
