@@ -11,12 +11,13 @@ from spring_package.Utilities import getChain, getCrossReference, getName, getTe
 def createPDB(identifier, pdbDatabase, outputName):
     pdb = getName(identifier)
     pdbDatabaseId = "%s.pdb" % pdb
-    pdbDatabase.createFile(pdbDatabaseId, outputName)
+    return pdbDatabase.createFile(pdbDatabaseId, outputName)
 
 
 def createMonomer(resultFile, identifier, pdbDatabase, outputName):
     print("Building model with: %s." % identifier)
-    createPDB(identifier, pdbDatabase, outputName)
+    if not createPDB(identifier, pdbDatabase, outputName):
+        return False
     template = Molecule(outputName)
     pdbChain = getChain(identifier)
     if pdbChain not in template.calpha:
@@ -118,12 +119,12 @@ def createModel(args):
     pdbDatabase = DBKit(args.index, args.database)
     crossReference = getCrossReference(args.cross)
     interfaceEnergy = Energy()
-    success = createMonomer(args.a_hhr, aTop, pdbDatabase, "temp/monomerA.pdb")
-    if not success:
-        return
-    success = createMonomer(args.b_hhr, bTop, pdbDatabase, "temp/monomerB.pdb")
-    if not success:
-        return
+    if not createMonomer(args.a_hhr, aTop, pdbDatabase, "temp/monomerA.pdb"):
+        print("Warning: Failed to determine monomer model for %s." % args.a_hhr)
+        return False
+    if not createMonomer(args.b_hhr, bTop, pdbDatabase, "temp/monomerB.pdb"):
+        print("Warning: Failed to determine monomer model for %s." % args.b_hhr)
+        return False
     maxScore = -9999
     maxInfo = None
     minScore = float(args.minscore)
@@ -184,5 +185,7 @@ def createModel(args):
             logFile.write("# Columns: NameA, NameB, Score, TMscore, Energy, Clashes\n")
         logFile.write(maxInfo)
         logFile.close()
+        return True
     else:
         print("Warning: Failed to determine model.")
+        return False

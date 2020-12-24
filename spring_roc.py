@@ -3,7 +3,7 @@ import argparse
 import math
 import random
 from os.path import isfile
-
+import re
 from matplotlib import pyplot as plt
 
 
@@ -58,7 +58,32 @@ def getFilter(filterName):
 
 def getReference(fileName, filterA=None, filterB=None, minScore=None, aCol=0,
                  bCol=1, scoreCol=-1, separator=None,
-                 skipFirstLine=False, filterValues=list()):
+                 skipFirstLine=False, filterValues=list(), checkRegion=False):
+
+    locations = dict()
+    if checkRegion:
+        if args.locations and isfile(args.locations):
+            with open(args.locations) as locFile:
+                for line in locFile:
+                    searchKey = "SUBCELLULAR LOCATION"
+                    searchPos = line.find(searchKey)
+                    if searchPos != -1:
+                        uniId = line.split()[0]
+                        locStart = searchPos + len(searchKey) + 1
+                        locId = line[locStart:]
+                        locId = re.sub(r"\s*{.*}\s*", "", locId)
+                        locId = locId.replace(".", "")
+                        locId = locId.replace(",", "")
+                        locId = locId.replace(" ", "")
+                        locId = locId.lower().strip()
+                        note_pos = locId.find("note=")
+                        if note_pos >= 0:
+                            locId = locId[:note_pos]
+                        note_pos = locId.find(";")
+                        if note_pos >= 0:
+                            locId = locId[:note_pos]
+                        locations[uniId] = locId
+
     index = dict()
     count = 0
     with open(fileName) as fp:
@@ -67,46 +92,58 @@ def getReference(fileName, filterA=None, filterB=None, minScore=None, aCol=0,
             line = fp.readline()
         while line:
             ls = line.split(separator)
+            skipEntry = False
             if separator is not None:
                 aList = getIds(ls[aCol])
                 bList = getIds(ls[bCol])
             else:
-                aList = [getCenterId(ls[aCol])]
-                bList = [getCenterId(ls[bCol])]
-            validEntry = False
-            for a in aList:
-                for b in bList:
-                    skip = False
-                    if a == "-" or b == "-":
-                        skip = True
-                    if filterA is not None:
-                        if a not in filterA and b not in filterA:
+                aId = getCenterId(ls[aCol])
+                bId = getCenterId(ls[bCol])
+                aList = [aId]
+                bList = [bId]
+                if checkRegion:
+                    if aId not in locations:
+                        skipEntry = True
+                    elif bId not in locations:
+                        skipEntry = True
+                    elif locations[aId] != locations[bId]:
+                        skipEntry = True
+
+            if not skipEntry:
+                validEntry = False
+                for a in aList:
+                    for b in bList:
+                        skip = False
+                        if a == "-" or b == "-":
                             skip = True
-                    if filterB is not None:
-                        if a not in filterB and b not in filterB:
-                            skip = True
-                    for f in filterValues:
-                        if len(ls) > f[0]:
-                            columnEntry = ls[f[0]].lower()
-                            searchEntry = f[1].lower()
-                            if columnEntry.find(searchEntry) == -1:
+                        if filterA is not None:
+                            if a not in filterA and b not in filterA:
                                 skip = True
-                    if not skip:
-                        name = getKey(a, b)
-                        if name not in index:
-                            validEntry = True
-                            if scoreCol >= 0 and len(ls) > scoreCol:
-                                score = float(ls[scoreCol])
-                                skip = False
-                                if minScore is not None:
-                                    if minScore > score:
-                                        return index, count
-                                if not skip:
-                                    index[name] = score
-                            else:
-                                index[name] = 1.0
-            if validEntry:
-                count = count + 1
+                        if filterB is not None:
+                            if a not in filterB and b not in filterB:
+                                skip = True
+                        for f in filterValues:
+                            if len(ls) > f[0]:
+                                columnEntry = ls[f[0]].lower()
+                                searchEntry = f[1].lower()
+                                if columnEntry.find(searchEntry) == -1:
+                                    skip = True
+                        if not skip:
+                            name = getKey(a, b)
+                            if name not in index:
+                                validEntry = True
+                                if scoreCol >= 0 and len(ls) > scoreCol:
+                                    score = float(ls[scoreCol])
+                                    skip = False
+                                    if minScore is not None:
+                                        if minScore > score:
+                                            return index, count
+                                    if not skip:
+                                        index[name] = score
+                                else:
+                                    index[name] = 1.0
+                if validEntry:
+                    count = count + 1
             line = fp.readline()
     return index, count
 
@@ -138,17 +175,17 @@ def getXY(prediction, positive, positiveCount, negative):
         fn = positiveTotal - tp
         tn = negativeTotal - fp
         denom = (tp+fp)*(tp+fn)*(tn+fp)*(tn+fn)
+        yValue = getPercentage(tp, tp + fn)
+        xValue = getPercentage(fp, fp + tn)
         if denom > 0.0:
             mcc = (tp*tn-fp*fn)/math.sqrt(denom)
             if mcc >= topMCC:
                 topMCC = mcc
                 topScore = score
                 topCount = count
-                topTP = getPercentage(tp, tp + fn)
-                topFP = getPercentage(fp, fp + tn)
+                topFP = xValue
+                topTP = yValue
         if found:
-            yValue = getPercentage(tp, tp + fn)
-            xValue = getPercentage(fp, fp + tn)
             y.append(yValue)
             x.append(xValue)
             xMax = max(xValue, xMax)
@@ -178,27 +215,6 @@ def getNegativeSet(args, filterA, filterB, negativeRequired):
                 if key not in negative:
                     negative.add(key)
     else:
-        # get subcellular locations from UniProt export
-        locations = dict()
-        if args.locations and isfile(args.locations):
-            regions = list()
-            if args.regions:
-                regions = args.regions.split(",")
-            with open(args.locations) as locFile:
-                for line in locFile:
-                    searchKey = "SUBCELLULAR LOCATION"
-                    searchPos = line.find(searchKey)
-                    if searchPos != -1:
-                        uniId = line.split()[0]
-                        locStart = searchPos + len(searchKey) + 1
-                        locId = line[locStart:].split()[0]
-                        if regions:
-                            if locId not in regions:
-                                continue
-                        if uniId in filterA or uniId in filterB:
-                            locations[uniId] = locId
-            print("Found subcellular locations for %s entries." % (len(list(locations.keys()))))
-
         # randomly sample non-interacting pairs
         filterAList = sorted(list(filterA))
         filterBList = sorted(list(filterB))
@@ -209,11 +225,6 @@ def getNegativeSet(args, filterA, filterB, negativeRequired):
             totalAttempts = totalAttempts - 1
             nameA = random.choice(filterAList)
             nameB = random.choice(filterBList)
-            if locations:
-                if nameA not in locations or nameB not in locations:
-                    continue
-                if locations[nameA] == locations[nameB]:
-                    continue
             key = getKey(nameA, nameB)
             if key not in negative:
                 negative.add(key)
@@ -235,7 +246,7 @@ def main(args):
 
     # identify biogrid filter options
     filterValues = list()
-    filterValues.append([11, "FRET"])
+    filterValues.append([11, "Co-crystal structure"])
 
     # process biogrid database
     print("Loading positive set from BioGRID file...")
@@ -247,12 +258,14 @@ def main(args):
     # estimate negative set
     negative = getNegativeSet(args, filterA, filterB, positiveCount)
 
-    # process prediction file
+    # get prediction results
     print("Loading prediction file...")
+    prediction, _ = getReference(args.input, scoreCol=2, checkRegion=False, skipFirstLine=True)
+    x, y, mcc = getXY(prediction, positive, positiveCount, negative)
+    xValues = [x]
+    yValues = [y]
 
     # identify biogrid filter options
-    xValues = list()
-    yValues = list()
     for method in ["Two-hybrid", "Affinity", "Biochemical Activity", "Co-localization"]:
         filterValues = [[11, method]]
         prediction, _ = getReference(args.biogrid, aCol=23, bCol=26,
@@ -262,12 +275,7 @@ def main(args):
         x, y, mcc = getXY(prediction, positive, positiveCount, negative)
         xValues.append(x)
         yValues.append(y)
-
-    prediction, _ = getReference(args.input, scoreCol=2)
-    x, y, mcc = getXY(prediction, positive, positiveCount, negative)
-    xValues.append(x)
-    yValues.append(y)
-
+    
     # create plot
     print("Producing plot data...")
     print("Total count in prediction file: %d." % len(prediction))

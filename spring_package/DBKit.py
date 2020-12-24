@@ -1,5 +1,12 @@
+from os.path import isfile
+
+
 class DBKit:
     def __init__(self, indexFile, databaseFile):
+        if not isfile(indexFile):
+            raise Exception("Index file not found: %s." % indexFile)    
+        if not isfile(databaseFile):
+            raise Exception("Database file not found: %s." % databaseFile)    
         self.databaseFile = databaseFile
         self.index = dict()
         with open(indexFile) as file:

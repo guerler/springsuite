@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 import argparse
 from os import mkdir, remove
-from os.path import isdir
+from os.path import isdir, isfile
 
 from spring_package.DBKit import DBKit
 from spring_package.Modeller import createModel
@@ -50,8 +50,10 @@ def main(args):
             output = "%s/%s.%s.pdb" % (outPath, aIdentifier, bIdentifier)
             modelArgs.set(a_hhr=aFile, b_hhr=bFile, output=output)
             createModel(modelArgs)
-            remove(aFile)
-            remove(bFile)
+            if isfile(aFile):
+                remove(aFile)
+            if isfile(bFile):
+                remove(bFile)
 
 
 if __name__ == "__main__":

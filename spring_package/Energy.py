@@ -29,7 +29,7 @@ class Energy:
                     result = result + self.dfire[index]
         return result
 
-    def getClashes(self, moleculeA, moleculeB, minDist=3.0):
+    def getClashes(self, moleculeA, moleculeB, minDist=5.0):
         minDist = minDist ** 2
         clashes = 0
         chainA = list(moleculeA.calpha.keys())[0]

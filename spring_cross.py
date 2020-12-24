@@ -8,8 +8,9 @@ from spring_package.Molecule import Molecule
 from spring_package.Utilities import getName
 
 
-def hasInterface(mol, chainA, chainB, distance=100.0, contacts=5):
+def hasInterface(mol, chainA, chainB, distance=10.0, contacts=5):
     count = 0
+    distance = distance ** 2
     for residueA in mol.calpha[chainA]:
         atomA = mol.calpha[chainA][residueA]
         for residueB in mol.calpha[chainB]:
