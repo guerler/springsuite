@@ -39,12 +39,10 @@ def main(args):
             bIdentifier = param[1]
             aFile = "temp/%s" % aIdentifier
             bFile = "temp/%s" % bIdentifier
-            success = dbkit.createFile(aIdentifier, aFile)
-            if not success:
+            if not dbkit.createFile(aIdentifier, aFile):
                 print("Failed to retrieve entry %s." % aIdentifier)
                 continue
-            success = dbkit.createFile(bIdentifier, bFile)
-            if not success:
+            if not dbkit.createFile(bIdentifier, bFile):
                 print("Failed to retrieve entry %s." % bIdentifier)
                 continue
             output = "%s/%s.%s.pdb" % (outPath, aIdentifier, bIdentifier)
