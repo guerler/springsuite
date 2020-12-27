@@ -72,17 +72,21 @@ def getReference(fileName, filterA=None, filterB=None, minScore=None, aCol=0,
                         locStart = searchPos + len(searchKey) + 1
                         locId = line[locStart:]
                         locId = re.sub(r"\s*{.*}\s*", "", locId)
-                        locId = locId.replace(".", "")
-                        locId = locId.replace(",", "")
-                        locId = locId.replace(" ", "")
-                        locId = locId.lower().strip()
-                        note_pos = locId.find("note=")
-                        if note_pos >= 0:
-                            locId = locId[:note_pos]
-                        note_pos = locId.find(";")
-                        if note_pos >= 0:
-                            locId = locId[:note_pos]
-                        locations[uniId] = locId
+                        locId = locId.replace(".", ",")
+                        locId = locId.strip().lower()
+                        filter_pos = locId.find("note=")
+                        if filter_pos >= 0:
+                            locId = locId[:filter_pos]
+                        filter_pos = locId.find(";")
+                        if filter_pos >= 0:
+                            locId = locId[:filter_pos]
+                        if locId:
+                            locId = list(map(lambda x: x.strip(), locId.split(",")))
+                            finalId = list()
+                            for lid in locId:
+                                if lid:
+                                    finalId.append(lid)
+                            locations[uniId] = finalId
 
     index = dict()
     count = 0
@@ -102,12 +106,15 @@ def getReference(fileName, filterA=None, filterB=None, minScore=None, aCol=0,
                 aList = [aId]
                 bList = [bId]
                 if checkRegion:
-                    if aId not in locations:
-                        skipEntry = True
-                    elif bId not in locations:
-                        skipEntry = True
-                    elif locations[aId] != locations[bId]:
-                        skipEntry = True
+                    skipEntry = True
+                    if aId in locations and bId in locations:
+                        locationA = locations[aId]
+                        locationB = locations[bId]
+                        for locA in locationA:
+                            for locB in locationB:
+                                if locA == locB:
+                                    skipEntry = False
+                                    break
 
             if not skipEntry:
                 validEntry = False
@@ -200,7 +207,7 @@ def getXY(prediction, positive, positiveCount, negative):
     return topFP, topTP, topMCC
 
 
-def getNegativeSet(args, filterA, filterB, negativeRequired):
+def getNegativeSet(args, filterA, filterB, positive, negativeRequired):
     # determine negative set
     print("Identifying non-interacting pairs...")
     negative = set()
@@ -226,7 +233,7 @@ def getNegativeSet(args, filterA, filterB, negativeRequired):
             nameA = random.choice(filterAList)
             nameB = random.choice(filterBList)
             key = getKey(nameA, nameB)
-            if key not in negative:
+            if key not in negative and key not in positive:
                 negative.add(key)
                 negativeRequired = negativeRequired - 1
                 if negativeRequired == 0:
@@ -246,8 +253,7 @@ def main(args):
 
     # identify biogrid filter options
     filterValues = list()
-    filterValues.append([11, "Co-crystal structure"])
-
+    
     # process biogrid database
     print("Loading positive set from BioGRID file...")
     positive, positiveCount = getReference(args.biogrid, aCol=23, bCol=26,
@@ -256,17 +262,18 @@ def main(args):
                                            filterValues=filterValues)
 
     # estimate negative set
-    negative = getNegativeSet(args, filterA, filterB, positiveCount)
+    negative = getNegativeSet(args, filterA, filterB, positive, positiveCount)
 
     # get prediction results
     print("Loading prediction file...")
-    prediction, _ = getReference(args.input, scoreCol=2, checkRegion=False, skipFirstLine=True)
+    prediction, _ = getReference(args.input, scoreCol=2, checkRegion=False)
     x, y, mcc = getXY(prediction, positive, positiveCount, negative)
     xValues = [x]
     yValues = [y]
 
     # identify biogrid filter options
-    for method in ["Two-hybrid", "Affinity", "Biochemical Activity", "Co-localization"]:
+    for method in ["FRET", "Two-hybrid", "Affinity", "Biochemical Activity", "Co-localization", "Reconstituted Complex"]:
+        print("Method: %s" % method)
         filterValues = [[11, method]]
         prediction, _ = getReference(args.biogrid, aCol=23, bCol=26,
                                      separator="\t", filterA=filterA,
@@ -293,6 +300,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Create ROC plot.')
+    parser.add_argument('-a', '--all', help='Input prediction file (2-columns).', required=True)
     parser.add_argument('-i', '--input', help='Input prediction file (2-columns).', required=True)
     parser.add_argument('-b', '--biogrid', help='BioGRID interaction database file', required=True)
     parser.add_argument('-l', '--locations', help='UniProt export table with subcellular locations', required=False)
