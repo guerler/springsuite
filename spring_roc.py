@@ -84,12 +84,8 @@ def getReference(fileName, filterA=None, filterB=None, minScore=None, aCol=0,
                         skip = False
                         if a == "-" or b == "-":
                             skip = True
-                        if filterA is not None:
-                            if a not in filterA and b not in filterA:
-                                skip = True
-                        if filterB is not None:
-                            if a not in filterB and b not in filterB:
-                                skip = True
+                        if filterA is not None and filterB is not None:
+                            skip = not ((a in filterA and b in filterB) or (a in filterB and b in filterA))
                         for f in filterValues:
                             if len(ls) > f[0]:
                                 columnEntry = ls[f[0]].lower()
@@ -159,16 +155,14 @@ def getXY(prediction, positive, positiveCount, negative):
             xMax = max(xValue, xMax)
         count = count + 1
     print("Top ranking prediction %s." % str(sortedPrediction[0]))
-    print("Total count of prediction set: %s (tp=%1.2f, fp=%1.2f)." %
-          (topCount, topTP, topFP))
+    print("Total count of prediction set: %s (tp=%1.2f, fp=%1.2f)." % (topCount, topTP, topFP))
     print("Total count of positive set: %s." % len(positive))
     print("Total count of negative set: %s." % len(negative))
-    print("Matthews-Correlation-Coefficient: %s at Score >= %s." %
-          (round(topMCC, 2), topScore))
+    print("Matthews-Correlation-Coefficient: %s at Score >= %s." % (round(topMCC, 2), topScore))
     return topFP, topTP, topMCC
 
 
-def getNegativeSet(args, filterA, filterB, negativeRequired, putative):
+def getNegativeSet(args, filterA, filterB, negativeRequired):
     # determine negative set
     print("Identifying non-interacting pairs...")
     negative = set()
@@ -184,34 +178,33 @@ def getNegativeSet(args, filterA, filterB, negativeRequired, putative):
                     negative.add(key)
     else:
         locations = dict()
-        if args.locations and isfile(args.locations):
-            regions = set(map(lambda x: x.lower(), args.regions.split(",")))
-            print("Filtering regions %s" % str(regions))
-            with open(args.locations) as locFile:
-                for line in locFile:
-                    searchKey = "SUBCELLULAR LOCATION"
-                    searchPos = line.find(searchKey)
-                    if searchPos != -1:
-                        uniId = line.split()[0]
-                        locStart = searchPos + len(searchKey) + 1
-                        locId = line[locStart:]
-                        locId = re.sub(r"\s*{.*}\s*", "", locId)
-                        locId = locId.replace(".", ",")
-                        locId = locId.strip().lower()
-                        filter_pos = locId.find("note=")
-                        if filter_pos >= 0:
-                            locId = locId[:filter_pos]
-                        filter_pos = locId.find(";")
-                        if filter_pos >= 0:
-                            locId = locId[:filter_pos]
-                        if locId:
-                            locId = list(map(lambda x: x.strip(), locId.split(",")))
-                            finalId = list()
-                            for lid in locId:
-                                if lid:
-                                    if lid in regions:
-                                        finalId.append(lid)
-                            locations[uniId] = finalId
+        regions = [args.region_a, args.region_b]
+        print("Filtering regions %s" % str(regions))
+        with open(args.locations) as locFile:
+            for line in locFile:
+                searchKey = "SUBCELLULAR LOCATION"
+                searchPos = line.find(searchKey)
+                if searchPos != -1:
+                    uniId = line.split()[0]
+                    if uniId not in filterA and uniId not in filterB:
+                        continue
+                    locStart = searchPos + len(searchKey) + 1
+                    locId = line[locStart:]
+                    locId = re.sub(r"\s*{.*}\s*", "", locId)
+                    locId = locId.replace(".", ",")
+                    locId = locId.strip().lower()
+                    filter_pos = locId.find("note=")
+                    if filter_pos >= 0:
+                        locId = locId[:filter_pos]
+                    filter_pos = locId.find(";")
+                    if filter_pos >= 0:
+                        locId = locId[:filter_pos]
+                    if locId:
+                        locId = list(map(lambda x: x.strip(), locId.split(",")))
+                        for lid in locId:
+                            if lid:
+                                if lid in regions:
+                                    locations[lid].append(uniId)
 
         # randomly sample non-interacting pairs
         filterAList = sorted(list(filterA))
@@ -223,7 +216,7 @@ def getNegativeSet(args, filterA, filterB, negativeRequired, putative):
             totalAttempts = totalAttempts - 1
             nameA = random.choice(filterAList)
             nameB = random.choice(filterBList)
-            skipEntry = True
+            skipEntry = bool(locations)
             if nameA in locations and nameB in locations:
                 locationA = locations[nameA]
                 locationB = locations[nameB]
@@ -234,7 +227,7 @@ def getNegativeSet(args, filterA, filterB, negativeRequired, putative):
                             break
             if not skipEntry:
                 key = getKey(nameA, nameB)
-                if key not in negative and key not in putative:
+                if key not in negative:
                     negative.add(key)
                     negativeRequired = negativeRequired - 1
                     if negativeRequired == 0:
@@ -254,7 +247,7 @@ def main(args):
 
     # identify biogrid filter options
     filterValues = list()
-    filterValues.append([11, "FRET"])
+    filterValues.append([11, args.method])
 
     # process biogrid database
     print("Loading positive set from BioGRID file...")
@@ -263,13 +256,8 @@ def main(args):
                                            filterB=filterB, skipFirstLine=True,
                                            filterValues=filterValues)
 
-    # process biogrid database
-    print("Loading putative set from BioGRID file...")
-    putative, _ = getReference(args.biogrid, aCol=23, bCol=26,
-                               separator="\t", skipFirstLine=True)
-
     # estimate negative set
-    negative = getNegativeSet(args, filterA, filterB, positiveCount, putative)
+    negative = getNegativeSet(args, filterA, filterB, positiveCount)
 
     # get prediction results
     print("Loading prediction file...")
@@ -289,7 +277,7 @@ def main(args):
         x, y, mcc = getXY(prediction, positive, positiveCount, negative)
         xValues.append(x)
         yValues.append(y)
-    
+
     # create plot
     print("Producing plot data...")
     print("Total count in prediction file: %d." % len(prediction))
@@ -311,7 +299,8 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input', help='Input prediction file (2-columns).', required=True)
     parser.add_argument('-b', '--biogrid', help='BioGRID interaction database file', required=True)
     parser.add_argument('-l', '--locations', help='UniProt export table with subcellular locations', required=False)
-    parser.add_argument('-r', '--regions', help='Comma-separated subcellular locations', required=False)
+    parser.add_argument('-ra', '--regions_a', help='First subcellular location', required=False)
+    parser.add_argument('-rb', '--regions_b', help='Second subcellular location', required=False)
     parser.add_argument('-n', '--negative', help='Negative set (2-columns)', required=False)
     parser.add_argument('-e', '--experiment', help='Type (physical/genetic)', required=False)
     parser.add_argument('-t', '--throughput', help='Throughput (low/high)', required=False)
