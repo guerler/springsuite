@@ -166,7 +166,7 @@ def createModel(args):
                 print("  ClashRatio : %5.2f" % clashes)
                 springScore = TMscore + energy * args.wenergy
                 print("  SpringScore: %5.2f" % springScore)
-                if springScore > maxScore:
+                if springScore > maxScore and clashes < args.maxclashes:
                     maxScore = springScore
                     maxInfo = "%s\t %s\t %5.2f\t %5.2f\t %5.2f\t %5.2f\n" % (aName, bName, springScore, TMscore, energy, clashes)
                     coreMolecule.save(outputName, chainName="0")

@@ -58,35 +58,7 @@ def getFilter(filterName):
 
 def getReference(fileName, filterA=None, filterB=None, minScore=None, aCol=0,
                  bCol=1, scoreCol=-1, separator=None,
-                 skipFirstLine=False, filterValues=list(), checkRegion=False):
-
-    locations = dict()
-    if checkRegion:
-        if args.locations and isfile(args.locations):
-            with open(args.locations) as locFile:
-                for line in locFile:
-                    searchKey = "SUBCELLULAR LOCATION"
-                    searchPos = line.find(searchKey)
-                    if searchPos != -1:
-                        uniId = line.split()[0]
-                        locStart = searchPos + len(searchKey) + 1
-                        locId = line[locStart:]
-                        locId = re.sub(r"\s*{.*}\s*", "", locId)
-                        locId = locId.replace(".", ",")
-                        locId = locId.strip().lower()
-                        filter_pos = locId.find("note=")
-                        if filter_pos >= 0:
-                            locId = locId[:filter_pos]
-                        filter_pos = locId.find(";")
-                        if filter_pos >= 0:
-                            locId = locId[:filter_pos]
-                        if locId:
-                            locId = list(map(lambda x: x.strip(), locId.split(",")))
-                            finalId = list()
-                            for lid in locId:
-                                if lid:
-                                    finalId.append(lid)
-                            locations[uniId] = finalId
+                 skipFirstLine=False, filterValues=list()):
 
     index = dict()
     count = 0
@@ -105,17 +77,6 @@ def getReference(fileName, filterA=None, filterB=None, minScore=None, aCol=0,
                 bId = getCenterId(ls[bCol])
                 aList = [aId]
                 bList = [bId]
-                if checkRegion:
-                    skipEntry = True
-                    if aId in locations and bId in locations:
-                        locationA = locations[aId]
-                        locationB = locations[bId]
-                        for locA in locationA:
-                            for locB in locationB:
-                                if locA == locB:
-                                    skipEntry = False
-                                    break
-
             if not skipEntry:
                 validEntry = False
                 for a in aList:
@@ -207,7 +168,7 @@ def getXY(prediction, positive, positiveCount, negative):
     return topFP, topTP, topMCC
 
 
-def getNegativeSet(args, filterA, filterB, positive, negativeRequired):
+def getNegativeSet(args, filterA, filterB, negativeRequired, putative):
     # determine negative set
     print("Identifying non-interacting pairs...")
     negative = set()
@@ -222,6 +183,36 @@ def getNegativeSet(args, filterA, filterB, positive, negativeRequired):
                 if key not in negative:
                     negative.add(key)
     else:
+        locations = dict()
+        if args.locations and isfile(args.locations):
+            regions = set(map(lambda x: x.lower(), args.regions.split(",")))
+            print("Filtering regions %s" % str(regions))
+            with open(args.locations) as locFile:
+                for line in locFile:
+                    searchKey = "SUBCELLULAR LOCATION"
+                    searchPos = line.find(searchKey)
+                    if searchPos != -1:
+                        uniId = line.split()[0]
+                        locStart = searchPos + len(searchKey) + 1
+                        locId = line[locStart:]
+                        locId = re.sub(r"\s*{.*}\s*", "", locId)
+                        locId = locId.replace(".", ",")
+                        locId = locId.strip().lower()
+                        filter_pos = locId.find("note=")
+                        if filter_pos >= 0:
+                            locId = locId[:filter_pos]
+                        filter_pos = locId.find(";")
+                        if filter_pos >= 0:
+                            locId = locId[:filter_pos]
+                        if locId:
+                            locId = list(map(lambda x: x.strip(), locId.split(",")))
+                            finalId = list()
+                            for lid in locId:
+                                if lid:
+                                    if lid in regions:
+                                        finalId.append(lid)
+                            locations[uniId] = finalId
+
         # randomly sample non-interacting pairs
         filterAList = sorted(list(filterA))
         filterBList = sorted(list(filterB))
@@ -232,18 +223,28 @@ def getNegativeSet(args, filterA, filterB, positive, negativeRequired):
             totalAttempts = totalAttempts - 1
             nameA = random.choice(filterAList)
             nameB = random.choice(filterBList)
-            key = getKey(nameA, nameB)
-            if key not in negative and key not in positive:
-                negative.add(key)
-                negativeRequired = negativeRequired - 1
-                if negativeRequired == 0:
-                    break
+            skipEntry = True
+            if nameA in locations and nameB in locations:
+                locationA = locations[nameA]
+                locationB = locations[nameB]
+                for locA in locationA:
+                    for locB in locationB:
+                        if locA != locB:
+                            skipEntry = False
+                            break
+            if not skipEntry:
+                key = getKey(nameA, nameB)
+                if key not in negative and key not in putative:
+                    negative.add(key)
+                    negativeRequired = negativeRequired - 1
+                    if negativeRequired == 0:
+                        break
     return negative
 
 
 def main(args):
     # load source files
-    filterSets = getFilter(args.input)
+    filterSets = getFilter(args.all)
     filterKeys = list(filterSets.keys())
     filterA = filterSets[filterKeys[0]]
     if len(filterKeys) > 1:
@@ -253,7 +254,8 @@ def main(args):
 
     # identify biogrid filter options
     filterValues = list()
-    
+    filterValues.append([11, "FRET"])
+
     # process biogrid database
     print("Loading positive set from BioGRID file...")
     positive, positiveCount = getReference(args.biogrid, aCol=23, bCol=26,
@@ -261,18 +263,23 @@ def main(args):
                                            filterB=filterB, skipFirstLine=True,
                                            filterValues=filterValues)
 
+    # process biogrid database
+    print("Loading putative set from BioGRID file...")
+    putative, _ = getReference(args.biogrid, aCol=23, bCol=26,
+                               separator="\t", skipFirstLine=True)
+
     # estimate negative set
-    negative = getNegativeSet(args, filterA, filterB, positive, positiveCount)
+    negative = getNegativeSet(args, filterA, filterB, positiveCount, putative)
 
     # get prediction results
     print("Loading prediction file...")
-    prediction, _ = getReference(args.input, scoreCol=2, checkRegion=False)
+    prediction, _ = getReference(args.input, scoreCol=2)
     x, y, mcc = getXY(prediction, positive, positiveCount, negative)
     xValues = [x]
     yValues = [y]
 
     # identify biogrid filter options
-    for method in ["FRET", "Two-hybrid", "Affinity", "Biochemical Activity", "Co-localization", "Reconstituted Complex"]:
+    for method in ["FRET", "Two-hybrid", "Affinity Capture-MS", "Proximity Label-MS", "PCA", "Far Western", "Co-purification", "Biochemical Activity", "Co-localization", "Reconstituted Complex"]:
         print("Method: %s" % method)
         filterValues = [[11, method]]
         prediction, _ = getReference(args.biogrid, aCol=23, bCol=26,

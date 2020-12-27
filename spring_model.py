@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument('-we', '--wenergy', help='Weight Energy term', type=float, default=-0.01, required=False)
     parser.add_argument('-ms', '--minscore', help='Minimum min-Z score threshold', type=float, default=10.0, required=False)
     parser.add_argument('-mt', '--maxtries', help='Maximum number of templates', type=int, default=20, required=False)
+    parser.add_argument('-mc', '--maxclashes', help='Maximum fraction of clashes', type=float, default=0.1, required=False)
     parser.add_argument('-sr', '--showtemplate', help='Add reference template to model structure', required=False, default="true")
     args = parser.parse_args()
     createModel(args)
