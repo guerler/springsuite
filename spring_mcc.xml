@@ -47,12 +47,7 @@
             </param>
             <when value="physical">
                 <param name="method" type="select" label="Experimental Method" help="Choose a specific experimental method name.">
-                    <option value="">Any</option>
-                    <option value="Affinity Capture">Affinity Capture-Any</option>
-                    <option value="Affinity Capture-Luminescence"></option>
                     <option value="Affinity Capture-MS">Affinity Capture-MS</option>
-                    <option value="Affinity Capture-RNA">Affinity Capture-RNA</option>
-                    <option value="Affinity Capture-Western">Affinity Capture-Western</option>
                     <option value="Biochemical Activity">Biochemical Activity</option>
                     <option value="Co-crystal Structure">Co-crystal Structure</option>
                     <option value="Co-fractionation">Co-fractionation</option>
@@ -61,9 +56,6 @@
                     <option value="Far Western">Far Western</option>
                     <option value="FRET">FRET</option>
                     <option value="PCA">PCA</option>
-                    <option value="Protein-peptide">Protein-peptide</option>
-                    <option value="Protein-RNA">Protein-RNA</option>
-                    <option value="Proximity Label-MS">Proximity Label-MS</option>
                     <option value="Reconstituted Complex">Reconstituted Complex</option>
                     <option value="Two-hybrid">Two-hybrid</option>
                 </param>
