@@ -158,26 +158,26 @@ def createModel(args):
                 bioMolecule.saveChain(aTemplateChain, "temp/template_0.pdb")
                 bioMolecule.saveChain(bTemplateChain, "temp/template_1.pdb")
                 try:
-                    coreTMscore, coreMolecule = TMalign("temp/monomerA.rebuilt.pdb", "temp/template_0.pdb")
+                    coreScore, coreMolecule = TMalign("temp/monomerA.rebuilt.pdb", "temp/template_0.pdb")
                     coreAligned = TMalignAlignment(bioMolecule, aTemplateChain)
-                    partnerTMscore, partnerMolecule = TMalign("temp/monomerB.rebuilt.pdb", "temp/template_1.pdb")
+                    partnerScore, partnerMolecule = TMalign("temp/monomerB.rebuilt.pdb", "temp/template_1.pdb")
                     partnerAligned = TMalignAlignment(bioMolecule, bTemplateChain)
                 except Exception as e:
                     print("Warning: Failed TMalign [%s]." % bTemplateChain)
                     print(str(e))
                     continue
                 biomolFound = True
-                TMscore = min(coreTMscore, partnerTMscore)
-                print("  minTMscore : %5.2f" % TMscore)
+                tmscore = min(coreScore, partnerScore)
+                print("  tmscore:\t%5.2f" % tmscore)
                 energy = -interfaceEnergy.get(coreAligned, partnerAligned)
-                print("  Interaction: %5.2f" % energy)
+                print("  energy:\t%5.2f" % energy)
                 clashes = interfaceEnergy.getClashes(coreMolecule, partnerMolecule)
-                print("  ClashRatio : %5.2f" % clashes)
-                springScore = TMscore + energy * args.wenergy
-                print("  SpringScore: %5.2f" % springScore)
-                if springScore > maxScore and clashes < args.maxclashes:
-                    maxScore = springScore
-                    maxInfo = dict(springScore=springScore, TMscore=TMscore, energy=energy, clashes=clashes)
+                print("  clashes:\t%5.2f" % clashes)
+                springscore = tmscore + energy * args.wenergy
+                print("  springscore:\t%5.2f" % springscore)
+                if springscore > maxScore and clashes < args.maxclashes:
+                    maxScore = springscore
+                    maxInfo = dict(springscore=springscore, tmscore=tmscore, energy=energy, clashes=clashes)
                     coreMolecule.save(outputName, chainName="0")
                     partnerMolecule.save(outputName, chainName="1", append=True)
                     if args.showtemplate == "true":
@@ -185,9 +185,10 @@ def createModel(args):
             if biomolFound:
                 break
     if maxInfo is not None:
+        print("Final Model:")
+        for key in maxInfo:
+            print("  %s:\t%5.2f" % (key, maxInfo[key]))
         print("Completed.")
-        print("SpringScore: %5.2f" % maxScore)
-        print("Result stored to %s" % outputName)
     else:
         print("Warning: Failed to determine model.")
     return maxInfo
