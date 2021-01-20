@@ -1,6 +1,6 @@
 import subprocess
 from os import mkdir
-from os.path import basename, isfile, isdir
+from os.path import basename, isdir
 
 from spring_package.Alignment import Alignment
 from spring_package.DBKit import DBKit
@@ -48,7 +48,6 @@ def TMalign(fileA, fileB, tmName="temp/tmalign"):
         line = next(file)
         for i in range(3):
             line = next(file)
-            print(line)
             rotmatLine = line.split()
             rotmatLine = list(map(lambda x: float(x), rotmatLine))
             rotmatLine = [rotmatLine[2], rotmatLine[3], rotmatLine[4], rotmatLine[1]]
@@ -178,7 +177,7 @@ def createModel(args):
                 print("  SpringScore: %5.2f" % springScore)
                 if springScore > maxScore and clashes < args.maxclashes:
                     maxScore = springScore
-                    maxInfo = "%s\t %s\t %5.2f\t %5.2f\t %5.2f\t %5.2f\n" % (aName, bName, springScore, TMscore, energy, clashes)
+                    maxInfo = dict(springScore=springScore, TMscore=TMscore, energy=energy, clashes=clashes)
                     coreMolecule.save(outputName, chainName="0")
                     partnerMolecule.save(outputName, chainName="1", append=True)
                     if args.showtemplate == "true":
@@ -189,13 +188,6 @@ def createModel(args):
         print("Completed.")
         print("SpringScore: %5.2f" % maxScore)
         print("Result stored to %s" % outputName)
-        logExists = isfile(args.log)
-        logFile = open(args.log, "a+")
-        if not logExists:
-            logFile.write("# Columns: NameA, NameB, Score, TMscore, Energy, Clashes\n")
-        logFile.write(maxInfo)
-        logFile.close()
-        return True
     else:
         print("Warning: Failed to determine model.")
-        return False
+    return maxInfo

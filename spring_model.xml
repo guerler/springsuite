@@ -6,7 +6,7 @@
         <requirement type="package" version="3.06">pulchra</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_model.py' -a '$a' -b '$b' -i '$index' -d '$database' -c '$cross' -o '$output' -g '$log'
+        python3 '$__tool_directory__/spring_model.py' -a '$a' -b '$b' -i '$index' -d '$database' -c '$cross' -o '$output'
     ]]></command>
     <inputs>
         <param format="text" name="a" type="data" label="First HHR target file" help="Threading result for target sequence using HHsearch."/>
@@ -17,7 +17,6 @@
     </inputs>
     <outputs>
         <data format="pdb" name="output" label="SPRING Model Structure"/>
-        <data format="tabular" name="log" label="SPRING Model Log"/>
     </outputs>
     <help><![CDATA[
 Creates protein complex model from HHsearch threading results.
