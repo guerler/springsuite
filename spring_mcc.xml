@@ -1,10 +1,10 @@
-<tool id="spring_roc" name="SPRING ROC" version="0.1.0" python_template_version="3.5" license="MIT">
+<tool id="spring_mcc" name="SPRING MCC" version="0.1.0" python_template_version="3.5" license="MIT">
     <description>plot generator</description>
     <requirements>
-        <requirement type="package" version="3.3.3">matplotlib</requirement>
+        <requirement type="package" version="3.3.2">matplotlib</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_roc.py' -i '$input' -b '$database' -e '$experiment.type' -m '$experiment.method' -t '$throughput' -l '$sampling.locations' -r '$sampling.regions' -n '$sampling.negative' -o '$rocplot'
+        python3 '$__tool_directory__/spring_mcc.py' -i '$input' -b '$database' -m '$method' -l '$sampling.locations' -ra '$sampling.regiona' -rb '$sampling.regionb' -n '$sampling.negative' -o '$mccplot'
     ]]></command>
     <inputs>
         <param name="input" type="data" format="tabular" label="Interacting Pairs" help="Prediction input containing UniProt Accession codes (2-columns)."/>
@@ -17,7 +17,16 @@
             <when value="uniprot">
                 <param name="locations" type="data" format="tabular" label="UniProt Localization Database" help="UniProt tabular export with localization column to sample non-interacting pairs." />
                 <param name="negative" type="hidden" value="" />
-                <param name="regions" type="select" multiple="True" label="Choose Subcellular Locations">
+                <param name="regiona" type="select" label="Choose First Subcellular Location">
+                    <option value="Cell">Cell</option>
+                    <option value="Cytoplasm">Cytoplasm</option>
+                    <option value="Membrane" selected="True">Membrane</option>
+                    <option value="Mitochondrion" selected="True">Mitochondrion</option>
+                    <option value="Nucleus">Nucleus</option>
+                    <option value="Periplasm">Periplasm</option>
+                    <option value="Secreted">Secreted</option>
+                 </param>
+                 <param name="regionb" type="select" label="Choose Second Subcellular Location">
                     <option value="Cell">Cell</option>
                     <option value="Cytoplasm">Cytoplasm</option>
                     <option value="Membrane" selected="True">Membrane</option>
@@ -30,63 +39,44 @@
             <when value="random">
                 <param name="negative" type="hidden" value="" />
                 <param name="locations" type="hidden" value="" />
-                <param name="regions" type="hidden" value="" />
+                <param name="regiona" type="hidden" value="" />
+                <param name="regionb" type="hidden" value="" />
             </when>
             <when value="negative">
                 <param name="locations" type="hidden" value="" />
                 <param name="negative" type="data" format="tabular" label="Non-interacting Pairs" help="Tabular file containing non-interacting pairs (2-columns)." />
-                <param name="regions" type="hidden" value="" />
+                <param name="regiona" type="hidden" value="" />
+                <param name="regionb" type="hidden" value="" />
             </when>
         </conditional>
         <param name="database" type="data" format="tabular" label="BioGRID Database" help="BioGRID Database in TAB 3.0 format."/>
-        <conditional name="experiment">
-            <param name="type" type="select" label="Experimental Type" display="radio" help="Choose a specific experimental system type.">
-                <option value="">Any</option>
-                <option value="physical">Physical</option>
-                <option value="genetic">Genetic</option>
-            </param>
-            <when value="physical">
-                <param name="method" type="select" label="Experimental Method" help="Choose a specific experimental method name.">
-                    <option value="Affinity Capture-MS">Affinity Capture-MS</option>
-                    <option value="Biochemical Activity">Biochemical Activity</option>
-                    <option value="Co-crystal Structure">Co-crystal Structure</option>
-                    <option value="Co-fractionation">Co-fractionation</option>
-                    <option value="Co-localization">Co-localization</option>
-                    <option value="Co-purification">Co-purification</option>
-                    <option value="Far Western">Far Western</option>
-                    <option value="FRET">FRET</option>
-                    <option value="PCA">PCA</option>
-                    <option value="Reconstituted Complex">Reconstituted Complex</option>
-                    <option value="Two-hybrid">Two-hybrid</option>
-                </param>
-            </when>
-            <when value="genetic">
-                <param name="method" type="hidden" value="" />
-            </when>
-            <when value="">
-                <param name="method" type="hidden" value="" />
-            </when>
-        </conditional>
-        <param name="throughput" type="select" label="Experimental Throughput" display="radio" help="Choose the experimental throughput grade.">
-            <option value="">Any</option>
-            <option value="Low Throughput">Low</option>
-            <option value="High Throughput">High</option>
+        <param name="method" type="select" label="Experimental Method" help="Choose a specific experimental method name.">
+            <option value="Affinity Capture-MS">Affinity Capture-MS</option>
+            <option value="Biochemical Activity">Biochemical Activity</option>
+            <option value="Co-crystal Structure">Co-crystal Structure</option>
+            <option value="Co-fractionation">Co-fractionation</option>
+            <option value="Co-localization">Co-localization</option>
+            <option value="Co-purification">Co-purification</option>
+            <option value="Far Western">Far Western</option>
+            <option value="FRET">FRET</option>
+            <option value="PCA">PCA</option>
+            <option value="Reconstituted Complex">Reconstituted Complex</option>
+            <option value="Two-hybrid">Two-hybrid</option>
         </param>
     </inputs>
     <outputs>
-        <data format="png" name="rocplot" label="SPRING ROC Image" />
+        <data format="png" name="mccplot" label="SPRING MCC Image" />
     </outputs>
     <tests>
         <test>
-            <param name="input" value="roc/human_hv1h2.txt" />
-            <param name="database" value="roc/biogrid_fret.txt" />
-            <output name="output" file="roc/human_hv1h2.png" />
+            <param name="input" value="mcc/human_hv1h2.txt" />
+            <param name="database" value="mcc/biogrid_fret.txt" />
+            <output name="output" file="mcc/human_hv1h2.png" />
         </test>
     </tests>
     <help><![CDATA[
-This tool generates a ROC plot for a given 2-column tabular prediction file containing UniProt Accession codes. The prediction is compared
-to a given BioGRID database file in TAB 3.0 format. Non-interacting protein pairs are randomly sampled. Optionally, users may filter the BioGRID database by
-choosing a specific experimental method.
+This tool generates a MCC plot for a given 2-column tabular prediction file containing UniProt Accession codes. The prediction is compared
+to a given BioGRID database file in TAB 3.0 format. Non-interacting protein pairs are randomly sampled.
     ]]></help>
     <citations>
         <citation type="bibtex">

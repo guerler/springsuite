@@ -2,6 +2,8 @@
     <description>complex structures</description>
     <requirements>
         <requirement type="package" version="1.78">biopython</requirement>
+        <requirement type="package" version="20170708">tmalign</requirement>
+        <requirement type="package" version="3.06">pulchra</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python3 '$__tool_directory__/spring_model.py' -a '$a' -b '$b' -i '$index' -d '$database' -c '$cross' -o '$output' -g '$log'

@@ -153,11 +153,12 @@ def getMCC(prediction, positive, positiveCount, negative):
             x.append(xValue)
             xMax = max(xValue, xMax)
         count = count + 1
-    print("Top ranking prediction %s." % str(sortedPrediction[0]))
-    print("Total count of prediction set: %s (tp=%1.2f, fp=%1.2f)." % (topCount, topTP, topFP))
-    print("Total count of positive set: %s." % len(positive))
-    print("Total count of negative set: %s." % len(negative))
-    print("Matthews-Correlation-Coefficient: %s at Score >= %s." % (round(topMCC, 2), topScore))
+    if len(sortedPrediction) > 0:
+        print("Top ranking prediction %s." % str(sortedPrediction[0]))
+        print("Total count of prediction set: %s (tp=%1.2f, fp=%1.2f)." % (topCount, topTP, topFP))
+        print("Total count of positive set: %s." % len(positive))
+        print("Total count of negative set: %s." % len(negative))
+        print("Matthews-Correlation-Coefficient: %s at Score >= %s." % (round(topMCC, 2), topScore))
     return topMCC
 
 
@@ -209,32 +210,34 @@ def getNegativeSet(args, filterA, filterB, negativeRequired, jSize=5):
                                 locations[regionA].append(uniId)
                             elif (regionA not in locId and regionB in locId):
                                 locations[regionB].append(uniId)
-            # randomly sample non-interacting pairs
             filterAList = sorted(locations[regionA])
             filterBList = sorted(locations[regionB])
         else:
             filterAList = list(filterA)
             filterBList = list(filterB)
-        i = 0
-        jStart = 0
-        while i < len(filterAList):
-            jMax = min(jStart + jSize, len(filterBList))
-            for j in range(jStart, jMax):
-                nameA = filterAList[i]
-                nameB = filterBList[j]
-                key = getKey(nameA, nameB)
-                if key not in negative:
-                    negative.add(key)
-                    negativeRequired = negativeRequired - 1
-                if negativeRequired == 0:
-                    break
+        for i, j in randomPairs(len(filterAList), len(filterBList), jSize):
+            nameA = filterAList[i]
+            nameB = filterBList[j]
+            key = getKey(nameA, nameB)
+            if key not in negative:
+                negative.add(key)
+                negativeRequired = negativeRequired - 1
             if negativeRequired == 0:
                 break
-            i = i + 1
-            if i == len(filterAList) and jMax < len(filterBList):
-                i = 0
-                jStart = jStart + jSize
     return negative
+
+
+def randomPairs(iLen, jLen, jSize):
+    i = 0
+    jStart = 0
+    while i < iLen:
+        jMax = min(jStart + jSize, jLen)
+        for j in range(jStart, jMax):
+            yield i, j
+        i = i + 1
+        if i == iLen and jMax < jLen:
+            i = 0
+            jStart = jStart + jSize + 1
 
 
 def main(args):
@@ -310,7 +313,6 @@ if __name__ == "__main__":
     parser.add_argument('-ra', '--region_a', help='First subcellular location', required=False)
     parser.add_argument('-rb', '--region_b', help='Second subcellular location', required=False)
     parser.add_argument('-n', '--negative', help='Negative set (2-columns)', required=False)
-    parser.add_argument('-e', '--experiment', help='Type (physical/genetic)', required=False)
     parser.add_argument('-t', '--throughput', help='Throughput (low/high)', required=False)
     parser.add_argument('-m', '--method', help='Method e.g. Two-hybrid', required=False)
     parser.add_argument('-o', '--output', help='Output (png)', required=True)

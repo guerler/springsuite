@@ -1,4 +1,5 @@
-from os import system, mkdir
+import subprocess
+from os import mkdir
 from os.path import basename, isfile, isdir
 
 from spring_package.Alignment import Alignment
@@ -27,24 +28,33 @@ def createMonomer(resultFile, identifier, pdbDatabase, outputName):
     alignment = Alignment(resultFile)
     alignment.createModel(chain)
     template.saveChain(pdbChain, outputName)
-    system("./build/pulchra %s" % outputName)
+    try:
+        subprocess.run(["pulchra", outputName], check=True)
+    except subprocess.CalledProcessError as e:
+        raise Exception(str(e))
     return True
 
 
 def TMalign(fileA, fileB, tmName="temp/tmalign"):
-    system("build/TMalign %s %s -m %s.mat > %s.out" % (fileA, fileB, tmName, tmName))
+    try:
+        tmResult = open("%s.out" % tmName, "w")
+        subprocess.run(["tmalign", fileA, fileB, "-m", "%s.mat" % tmName], check=True, stdout=tmResult)
+        tmResult.close()
+    except subprocess.CalledProcessError as e:
+        raise Exception(str(e))
     rotmat = list()
     with open("%s.mat" % tmName) as file:
         line = next(file)
         line = next(file)
         for i in range(3):
             line = next(file)
-            rotmatLine = line[1:].split()
+            print(line)
+            rotmatLine = line.split()
             rotmatLine = list(map(lambda x: float(x), rotmatLine))
-            rotmatLine = [rotmatLine[1], rotmatLine[2], rotmatLine[3], rotmatLine[0]]
+            rotmatLine = [rotmatLine[2], rotmatLine[3], rotmatLine[4], rotmatLine[1]]
             rotmat.append(rotmatLine)
     with open("%s.out" % tmName) as file:
-        for i in range(14):
+        for i in range(18):
             line = next(file)
         try:
             tmscore = float(line[9:17])
@@ -61,7 +71,7 @@ def TMalign(fileA, fileB, tmName="temp/tmalign"):
 def TMalignAlignment(bioMolecule, templateChain, tmName="temp/tmalign"):
     aligned = list()
     with open("%s.out" % tmName) as file:
-        for i in range(19):
+        for i in range(23):
             line = next(file)
         try:
             modelAlign = line
