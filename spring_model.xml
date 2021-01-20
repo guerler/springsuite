@@ -28,7 +28,6 @@ Creates protein complex model from HHsearch threading results.
         <param name="database" value="model/pdb_structures.ffdata" />
         <param name="cross" value="model/crossreference.txt" />
         <output name="output" file="model/result.pdb"/>
-        <output name="log" file="model/result.txt"/>
     </test>
     <citations>
         <citation type="bibtex">

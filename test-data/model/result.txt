@@ -1,2 +1,0 @@
-# Columns: NameA, NameB, Score, TMscore, Energy, Clashes
-ACE2_HUMAN.hhr	 SPIKE_SARS2.hhr	  0.90	  0.81	 -8.52	  0.00
