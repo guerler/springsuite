@@ -21,14 +21,16 @@
     <help><![CDATA[
 Creates protein complex model from HHsearch threading results.
     ]]></help>
-    <test>
-        <param name="a" value="model/ACE2_HUMAN.hhr" />
-        <param name="b" value="model/SPIKE_SARS2.hhr" />
-        <param name="index" value="model/pdb_structures.ffindex" />
-        <param name="database" value="model/pdb_structures.ffdata" />
-        <param name="cross" value="model/crossreference.txt" />
-        <output name="output" file="model/result.pdb"/>
-    </test>
+    <tests>
+        <test>
+            <param name="a" value="model/ACE2_HUMAN.hhr" />
+            <param name="b" value="model/SPIKE_SARS2.hhr" />
+            <param name="index" value="model/pdb_structures.ffindex" />
+            <param name="database" value="model/pdb_structures.ffdata" />
+            <param name="cross" value="model/crossreference.txt" />
+            <output name="output" file="model/sp\|Q9BYF1\|ACE2_HUMAN.sp\|P0DTC2\|SPIKE_SARS2.pdb"/>
+        </test>
+    </tests>
     <citations>
         <citation type="bibtex">
 @misc{githubhh-suite,

@@ -33,6 +33,8 @@ def main(args):
     if not isdir("temp"):
         mkdir("temp")
     dbkit = DBKit(args.hhr_index, args.hhr_database)
+    logFile = open(args.log, "w")
+    logFile.write("#NameA\t NameB\t Score\t TMscore\t Energy\t Clashes\n")
     with open(args.pairs, "r") as file:
         for line in file:
             param = line.split()
@@ -48,11 +50,19 @@ def main(args):
                 continue
             output = "%s/%s.%s.pdb" % (outPath, aIdentifier, bIdentifier)
             modelArgs.set(a_hhr=aFile, b_hhr=bFile, output=output)
-            createModel(modelArgs)
+            modelData = createModel(modelArgs)
+            if modelData:
+                infoStr = "%s\t %s\t %5.2f\t %5.2f\t %5.2f\t %5.2f\n" % (aIdentifier, bIdentifier,
+                                                                         modelData["springscore"],
+                                                                         modelData["tmscore"],
+                                                                         modelData["energy"],
+                                                                         modelData["clashes"])
+                logFile.write(infoStr)
             if isfile(aFile):
                 remove(aFile)
             if isfile(bFile):
                 remove(bFile)
+    logFile.close()
 
 
 if __name__ == "__main__":
