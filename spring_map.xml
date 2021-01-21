@@ -4,13 +4,14 @@
         <requirement type="package" version="2.10.1">blast</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_map.py' -l '$list' -i '$index' -d '$database' -c '$cross' -o '$output' -g '$log'
+        python3 '$__tool_directory__/spring_map.py' -l '$list' -i '$index' -d '$database' -c '$cross' -e $evalue -o '$output' -g '$log'
     ]]></command>
     <inputs>
         <param format="tabular" name="list" type="data" label="PDB Chain Identifiers" help="List of PDB chains `PDB_CHAIN`."/>
         <param format="ffindex" name="index" type="data" label="PDB Database Index" help="Database Index file."/>
         <param format="ffdata" name="database" type="data" label="PDB Database" help="Database Data file."/>
         <param format="tabular" name="cross" type="data" label="Cross Reference (unmapped)" help="Unmapped SPRING PDB Cross Reference as produced by SPRING Cross tool."/>
+        <param name="evalue" type="float" label="E-value Threshold" help="Specify an e-Value threshold to filter the alignment results" value="0.0" />
     </inputs>
     <outputs>
         <data format="tabular" name="output" label="SPRING Map Cross Reference"/>

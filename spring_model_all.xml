@@ -6,15 +6,15 @@
         <requirement type="package" version="3.06">pulchra</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_model_all.py' -p '$pairs' -ih '$index_hhr' -dh '$database_hhr' -i '$index' -d '$database' -c '$cross' -o 'models' -g '$log'
+        python3 '$__tool_directory__/spring_model_all.py' -p '$pairs' -ih '$index_hhr' -dh '$database_hhr' -i '$index_pdb' -d '$database_pdb' -c '$crossreference' -o 'models' -g '$log'
     ]]></command>
     <inputs>
         <param format="tabular" name="pairs" type="data" label="Interacting Pairs" help="Tabular 2-column file containing putative protein interaction pairs."/>
         <param format="ffindex" name="index_hhr" type="data" label="HHR Index" help="HHR Database Index file (ffindex)."/>
         <param format="ffdata" name="database_hhr" type="data" label="HHR Database" help="HHR Database files (ffdata)."/>
-        <param format="ffindex" name="index" type="data" label="PDB Index" help="PDB Database Index file (ffindex)."/>
-        <param format="ffdata" name="database" type="data" label="PDB Database" help="PDB Database files (ffdata)."/>
-        <param format="tabular" name="cross" type="data" label="Cross Reference" help="SPRING PDB Cross Reference as produced by SPRING Cross tool."/>
+        <param format="ffindex" name="index_pdb" type="data" label="PDB Index" help="PDB Database Index file (ffindex)."/>
+        <param format="ffdata" name="database_pdb" type="data" label="PDB Database" help="PDB Database files (ffdata)."/>
+        <param format="tabular" name="crossreference" type="data" label="Cross Reference" help="SPRING PDB Cross Reference as produced by SPRING Cross tool."/>
     </inputs>
     <outputs>
         <collection type="list" label="SPRING Model Structures" name="models">
@@ -25,6 +25,17 @@
     <help><![CDATA[
 Creates protein complex model from HHsearch threading results.
     ]]></help>
+    <tests>
+        <test>
+            <param name="p" value="model/pairs.txt" />
+            <param name="index_hhr" value="model/hhr.ffindex" />
+            <param name="database_hhr" value="model/hhr.ffdata" />
+            <param name="index_pdb" value="model/pdb_structures.ffindex" />
+            <param name="database_pdb" value="model/pdb_structures.ffdata" />
+            <param name="crossreference" value="model/crossreference.txt" />
+            <output name="log" file="model/log.txt"/>
+        </test>
+    </tests>
     <citations>
         <citation type="bibtex">
 @misc{githubhh-suite,

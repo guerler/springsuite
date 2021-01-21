@@ -34,7 +34,7 @@ def main(args):
         mkdir("temp")
     dbkit = DBKit(args.hhr_index, args.hhr_database)
     logFile = open(args.log, "w")
-    logFile.write("#NameA\t NameB\t Score\t TMscore\t Energy\t Clashes\n")
+    logFile.write("#namea\t nameb\t springscore\t tmscore\t energy\t clashes\n")
     with open(args.pairs, "r") as file:
         for line in file:
             param = line.split()

@@ -104,10 +104,10 @@ def main(args):
     for refEntry in crossReference:
         coreId = refEntry["core"]
         logFile.write("Processing %s.\n" % coreId)
-        coreMatch = findMatch(coreId, templates, templateSequenceFile, pdbDatabase)
+        coreMatch = findMatch(coreId, templates, templateSequenceFile, pdbDatabase, evalue=args.evalue)
         partnerId = refEntry["partner"]
         logFile.write("Processing %s.\n" % partnerId)
-        partnerMatch = findMatch(partnerId, templates, templateSequenceFile, pdbDatabase)
+        partnerMatch = findMatch(partnerId, templates, templateSequenceFile, pdbDatabase, evalue=args.evalue)
         if partnerMatch is None or coreMatch is None:
             logFile.write("Warning: Failed alignment [%s, %s].\n" % (coreId, partnerId))
         else:
@@ -139,5 +139,6 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--cross', help='Cross reference (unmapped)', required=True)
     parser.add_argument('-o', '--output', help='Cross reference', required=True)
     parser.add_argument('-g', '--log', help='Log File', required=True)
+    parser.add_argument('-e', '--evalue', help='e-Value threshold', type=float, default=0.0)
     args = parser.parse_args()
     main(args)
