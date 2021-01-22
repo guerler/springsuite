@@ -28,7 +28,7 @@ Creates protein complex model from HHsearch threading results.
             <param name="index" value="model/pdb_structures.ffindex" />
             <param name="database" value="model/pdb_structures.ffdata" />
             <param name="cross" value="model/crossreference.txt" />
-            <output name="output" file="model/sp\|Q9BYF1\|ACE2_HUMAN.sp\|P0DTC2\|SPIKE_SARS2.pdb"/>
+            <output name="output" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2.pdb"/>
         </test>
     </tests>
     <citations>

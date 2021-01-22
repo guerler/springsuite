@@ -1,2 +1,2 @@
 #namea	 nameb	 springscore	 tmscore	 energy	 clashes
-sp|Q9BYF1|ACE2_HUMAN	sp|P0DTC2|SPIKE_SARS2	0.91	0.82	-8.92	0.00
+sp|Q9BYF1|ACE2_HUMAN	 sp|P0DTC2|SPIKE_SARS2	  0.91	  0.82	 -8.92	  0.00

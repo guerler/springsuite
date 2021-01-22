@@ -27,7 +27,7 @@ Creates protein complex model from HHsearch threading results.
     ]]></help>
     <tests>
         <test>
-            <param name="p" value="model/pairs.txt" />
+            <param name="pairs" value="model/pairs.txt" />
             <param name="index_hhr" value="model/hhr.ffindex" />
             <param name="database_hhr" value="model/hhr.ffdata" />
             <param name="index_pdb" value="model/pdb_structures.ffindex" />
