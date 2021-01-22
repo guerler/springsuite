@@ -4,7 +4,7 @@
         <requirement type="package" version="3.3.2">matplotlib</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_mcc.py' -i '$input' -b '$database' -m '$method' -l '$sampling.locations' -ra '$sampling.regiona' -rb '$sampling.regionb' -n '$sampling.negative' -o '$mccplot'
+        python3 '$__tool_directory__/spring_mcc.py' -i '$input' -b '$database' -m '$method' -l '$sampling.locations' -ra '$sampling.regiona' -rb '$sampling.regionb' -n '$sampling.negative' -o '$output'
     ]]></command>
     <inputs>
         <param name="input" type="data" format="tabular" label="Interacting Pairs" help="Prediction input containing UniProt Accession codes (2-columns)."/>
@@ -37,8 +37,8 @@
                  </param>
             </when>
             <when value="random">
-                <param name="negative" type="hidden" value="" />
                 <param name="locations" type="hidden" value="" />
+                <param name="negative" type="hidden" value="" />
                 <param name="regiona" type="hidden" value="" />
                 <param name="regionb" type="hidden" value="" />
             </when>
@@ -65,12 +65,13 @@
         </param>
     </inputs>
     <outputs>
-        <data format="png" name="mccplot" label="SPRING MCC Image" />
+        <data format="png" name="output" label="SPRING MCC Image" />
     </outputs>
     <tests>
         <test>
             <param name="input" value="mcc/human_hv1h2.txt" />
             <param name="database" value="mcc/biogrid_fret.txt" />
+            <param name="method" value="FRET" />
             <output name="output" file="mcc/human_hv1h2.png" />
         </test>
     </tests>
