@@ -1,0 +1,5 @@
+description: Identifies protein protein interaction from sequences
+long_description: This method utilizes monomeric protein structure predictions to identify protein-protein interactions and models their structures.
+homepage_url: https://github.com/guerler/springsuite
+name: springsuite
+owner: guerler
