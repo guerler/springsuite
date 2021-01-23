@@ -31,7 +31,8 @@ def createMonomer(resultFile, identifier, pdbDatabase, outputName):
     try:
         subprocess.run(["pulchra", outputName], check=True)
     except subprocess.CalledProcessError as e:
-        raise Exception(str(e))
+        print(str(e))
+        return False
     return True
 
 
