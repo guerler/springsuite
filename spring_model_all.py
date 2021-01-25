@@ -58,6 +58,7 @@ def main(args):
                                                                          modelData["energy"],
                                                                          modelData["clashes"])
                 logFile.write(infoStr)
+                logFile.flush()
             if isfile(aFile):
                 remove(aFile)
             if isfile(bFile):

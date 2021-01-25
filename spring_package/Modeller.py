@@ -85,7 +85,7 @@ def TMalignAlignment(bioMolecule, templateChain, tmName="temp/tmalign"):
     templateIndex = 0
     for i in range(len(alignment)):
         t = templateAlign[i]
-        if alignment[i] == ":":
+        if alignment[i] in [":", "."]:
             templateResidue = templateResidues[templateIndex]
             templateResidue["alignedResidue"] = modelAlign[i]
             aligned.append(templateResidue)
