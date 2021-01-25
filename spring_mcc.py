@@ -1,9 +1,20 @@
 #! /usr/bin/env python
 import argparse
 import math
+import pandas as pd
 from os.path import isfile
 import re
-from matplotlib import pyplot as plt
+
+METHODS = ["Biochemical Activity",
+           "Co-fractionation",
+           "Co-localization",
+           "Far Western",
+           "FRET",
+           "PCA",
+           "Co-crystal Structure",
+           "Co-purification",
+           "Two-hybrid",
+           "Affinity Capture-MS"]
 
 
 def getIds(rawIds):
@@ -251,56 +262,57 @@ def main(args):
         filterB = filterA
 
     # identify biogrid filter options
-    filterValues = list()
-    filterValues.append([11, args.method])
+    performance = dict()
+    for methodReference in METHODS:
 
-    # process biogrid database
-    print("Loading positive set from BioGRID file...")
-    positive, positiveCount = getReference(args.biogrid, aCol=23, bCol=26,
-                                           separator="\t", filterA=filterA,
-                                           filterB=filterB, skipFirstLine=True,
-                                           filterValues=filterValues)
+        # process biogrid database
+        print("Loading positive set from BioGRID file (%s)..." % methodReference)
+        filterValues = [[11, methodReference]]
+        positive, positiveCount = getReference(args.biogrid, aCol=23, bCol=26,
+                                               separator="\t", filterA=filterA,
+                                               filterB=filterB, skipFirstLine=True,
+                                               filterValues=filterValues)
 
-    # estimate negative set
-    negative = getNegativeSet(args, filterA, filterB, positiveCount)
+        # estimate negative set
+        negative = getNegativeSet(args, filterA, filterB, positiveCount)
 
-    # get prediction results
-    print("Loading prediction file...")
-    prediction, _ = getReference(args.input, scoreCol=2, minScore=0.8)
-    mcc = getMCC(prediction, positive, positiveCount, negative)
-    yValues = [mcc]
-    yTicks = ["SPRING"]
+        # evaluate other methods
+        yValues = list()
+        for method in METHODS:
+            if methodReference != method:
+                print("Method: %s" % method)
+                filterValues = [[11, method]]
+                prediction, _ = getReference(args.biogrid, aCol=23, bCol=26,
+                                             separator="\t", filterA=filterA,
+                                             filterB=filterB, skipFirstLine=True,
+                                             filterValues=filterValues)
+                mcc = getMCC(prediction, positive, positiveCount, negative)
+                yValues.append(mcc)
+            else:
+                yValues.append(0.0)
 
-    # identify biogrid filter options
-    for method in ["Affinity Capture-MS",
-                   "Biochemical Activity",
-                   "Co-crystal Structure",
-                   "Co-fractionation",
-                   "Co-localization",
-                   "Co-purification",
-                   "Far Western",
-                   "FRET",
-                   "PCA",
-                   "Reconstituted Complex",
-                   "Two-hybrid"]:
-        if args.method != method:
-            print("Method: %s" % method)
-            filterValues = [[11, method]]
-            prediction, _ = getReference(args.biogrid, aCol=23, bCol=26,
-                                         separator="\t", filterA=filterA,
-                                         filterB=filterB, skipFirstLine=True,
-                                         filterValues=filterValues)
-            mcc = getMCC(prediction, positive, positiveCount, negative)
-            yValues.append(mcc)
-            yTicks.append(method)
+        # add results to performance dication
+        performance[methodReference] = yValues
+
+        # get and append prediction results
+        print("Loading prediction file...")
+        prediction, _ = getReference(args.input, scoreCol=2, minScore=0.0)
+        mcc = getMCC(prediction, positive, positiveCount, negative)
+        performance[methodReference].append(mcc)
+
+    # build yTicks
+    yTicks = METHODS[:]
+    yTicks.append("SPRING")
 
     # create plot
     print("Producing plot data...")
     print("Total count in prediction file: %d." % len(prediction))
     print("Total count in positive file: %d." % len(positive))
-    plt.xlabel("Matthews-Correlation Coefficient (MCC)")
-    plt.title("Positive set: %s" % args.method)
-    plt.barh(yTicks, yValues)
+    df = pd.DataFrame(performance, index=yTicks)
+    ax = df.plot.barh()
+    ax.set_title(args.experiment)
+    ax.set_xlabel("Matthews-Correlation Coefficient (MCC)")
+    plt = ax.get_figure()
     plt.tight_layout()
     plt.savefig(args.output, format="png")
 
@@ -314,7 +326,7 @@ if __name__ == "__main__":
     parser.add_argument('-rb', '--region_b', help='Second subcellular location', required=False)
     parser.add_argument('-n', '--negative', help='Negative set (2-columns)', required=False)
     parser.add_argument('-t', '--throughput', help='Throughput (low/high)', required=False)
-    parser.add_argument('-m', '--method', help='Method e.g. Two-hybrid', required=False)
+    parser.add_argument('-e', '--experiment', help='Experiment Title', required=False, default="Results")
     parser.add_argument('-o', '--output', help='Output (png)', required=True)
     args = parser.parse_args()
     main(args)

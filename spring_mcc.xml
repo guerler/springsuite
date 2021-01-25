@@ -2,11 +2,13 @@
     <description>plot generator</description>
     <requirements>
         <requirement type="package" version="3.3.2">matplotlib</requirement>
+        <requirement type="package" version="1.2.0">pandas</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_mcc.py' -i '$input' -b '$database' -m '$method' -l '$sampling.locations' -ra '$sampling.regiona' -rb '$sampling.regionb' -n '$sampling.negative' -o '$output'
+        python3 '$__tool_directory__/spring_mcc.py' -i '$input' -b '$database' -e '$experiment' -l '$sampling.locations' -ra '$sampling.regiona' -rb '$sampling.regionb' -n '$sampling.negative' -o '$output'
     ]]></command>
     <inputs>
+        <param name="experiment" type="text" label="Title" help="Experiment title" value="Results"/>
         <param name="input" type="data" format="tabular" label="Interacting Pairs" help="Prediction input containing UniProt Accession codes (2-columns)."/>
         <conditional name="sampling">
             <param name="type" type="select" label="Non-interacting Pairs" display="radio" help="Specify how to determine non-interacting pairs.">
@@ -50,19 +52,6 @@
             </when>
         </conditional>
         <param name="database" type="data" format="tabular" label="BioGRID Database" help="BioGRID Database in TAB 3.0 format."/>
-        <param name="method" type="select" label="Experimental Method" help="Choose a specific experimental method name.">
-            <option value="Affinity Capture-MS">Affinity Capture-MS</option>
-            <option value="Biochemical Activity">Biochemical Activity</option>
-            <option value="Co-crystal Structure">Co-crystal Structure</option>
-            <option value="Co-fractionation">Co-fractionation</option>
-            <option value="Co-localization">Co-localization</option>
-            <option value="Co-purification">Co-purification</option>
-            <option value="Far Western">Far Western</option>
-            <option value="FRET">FRET</option>
-            <option value="PCA">PCA</option>
-            <option value="Reconstituted Complex">Reconstituted Complex</option>
-            <option value="Two-hybrid">Two-hybrid</option>
-        </param>
     </inputs>
     <outputs>
         <data format="png" name="output" label="SPRING MCC Image" />
@@ -71,7 +60,6 @@
         <test>
             <param name="input" value="mcc/human_hv1h2.txt" />
             <param name="database" value="mcc/biogrid_fret.txt" />
-            <param name="method" value="FRET" />
             <output name="output" file="mcc/human_hv1h2.png" />
         </test>
     </tests>
