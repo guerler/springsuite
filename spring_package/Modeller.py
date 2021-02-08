@@ -94,27 +94,6 @@ def TMalignAlignment(bioMolecule, templateChain, tmName="temp/tmalign"):
     return aligned
 
 
-def getFrameworks(aTemplates, bTemplates, crossReference, minScore, maxTries):
-    templateHits = list()
-    for aTemplate in aTemplates:
-        if aTemplate in crossReference:
-            partners = crossReference[aTemplate]["partners"]
-            templates = crossReference[aTemplate]["templates"]
-            for pIndex in range(len(partners)):
-                pTemplate = partners[pIndex]
-                templatePair = templates[pIndex]
-                if pTemplate in bTemplates:
-                    minZ = min(aTemplates[aTemplate], bTemplates[pTemplate])
-                    templateHits.append(dict(templatePair=templatePair, score=minZ))
-    templateList = sorted(templateHits, key=lambda item: item["score"], reverse=True)
-    print("Found %d templates." % len(templateList))
-    for templateHit in templateList:
-        if templateHit["score"] < minScore or maxTries == 0:
-            break
-        maxTries = maxTries - 1
-        yield templateHit["templatePair"]
-
-
 def createModel(args):
     print("SPRING - Complex Model Creation")
     aName = basename(args.a_hhr)
@@ -139,50 +118,50 @@ def createModel(args):
     maxInfo = None
     minScore = float(args.minscore)
     maxTries = int(args.maxtries)
-    for [aTemplate, bTemplate] in getFrameworks(aTemplates, bTemplates, crossReference, minScore=minScore, maxTries=maxTries):
+    for aTemplate in aTemplates:
         print("Evaluating Complex Template: %s." % aTemplate)
         templateFile = "temp/template.pdb"
         createPDB(aTemplate, pdbDatabase, templateFile)
         templateMolecule = Molecule(templateFile)
         aTemplateChain = getChain(aTemplate)
-        bTemplateChain = getChain(bTemplate)
-        if aTemplateChain == bTemplateChain:
-            bTemplateChain = "%s_0" % bTemplateChain
-        print("Evaluating chain %s and %s..." % (aTemplate, bTemplate))
         biomolFound = False
         for biomolNumber in templateMolecule.biomol:
             bioMolecule = templateMolecule.createUnit(biomolNumber)
-            if (len(bioMolecule.calpha.keys()) > 1
-               and aTemplateChain in bioMolecule.calpha
-               and bTemplateChain in bioMolecule.calpha):
-                print("Evaluating biomolecule %i..." % biomolNumber)
-                bioMolecule.saveChain(aTemplateChain, "temp/template_0.pdb")
-                bioMolecule.saveChain(bTemplateChain, "temp/template_1.pdb")
-                try:
-                    coreScore, coreMolecule = TMalign("temp/monomerA.rebuilt.pdb", "temp/template_0.pdb")
-                    coreAligned = TMalignAlignment(bioMolecule, aTemplateChain)
-                    partnerScore, partnerMolecule = TMalign("temp/monomerB.rebuilt.pdb", "temp/template_1.pdb")
-                    partnerAligned = TMalignAlignment(bioMolecule, bTemplateChain)
-                except Exception as e:
-                    print("Warning: Failed TMalign [%s]." % bTemplateChain)
-                    print(str(e))
-                    continue
-                biomolFound = True
-                tmscore = min(coreScore, partnerScore)
-                print("  tmscore:\t%5.2f" % tmscore)
-                energy = -interfaceEnergy.get(coreAligned, partnerAligned)
-                print("  energy:\t%5.2f" % energy)
-                clashes = interfaceEnergy.getClashes(coreMolecule, partnerMolecule)
-                print("  clashes:\t%5.2f" % clashes)
-                springscore = tmscore + energy * args.wenergy
-                print("  springscore:\t%5.2f" % springscore)
-                if springscore > maxScore and clashes < args.maxclashes:
-                    maxScore = springscore
-                    maxInfo = dict(springscore=springscore, tmscore=tmscore, energy=energy, clashes=clashes)
-                    coreMolecule.save(outputName, chainName="0")
-                    partnerMolecule.save(outputName, chainName="1", append=True)
-                    if args.showtemplate == "true":
-                        bioMolecule.save(outputName, append=True)
+            for bTemplateChain in bioMolecule.calpha:
+                if aTemplateChain == bTemplateChain:
+                    bTemplateChain = "%s_0" % bTemplateChain
+                print("Evaluating chain %s and %s..." % (aTemplate, bTemplateChain))
+                if (len(bioMolecule.calpha.keys()) > 1
+                and aTemplateChain in bioMolecule.calpha
+                and bTemplateChain in bioMolecule.calpha):
+                    print("Evaluating biomolecule %i..." % biomolNumber)
+                    bioMolecule.saveChain(aTemplateChain, "temp/template_0.pdb")
+                    bioMolecule.saveChain(bTemplateChain, "temp/template_1.pdb")
+                    try:
+                        coreScore, coreMolecule = TMalign("temp/monomerA.rebuilt.pdb", "temp/template_0.pdb")
+                        coreAligned = TMalignAlignment(bioMolecule, aTemplateChain)
+                        partnerScore, partnerMolecule = TMalign("temp/monomerB.rebuilt.pdb", "temp/template_1.pdb")
+                        partnerAligned = TMalignAlignment(bioMolecule, bTemplateChain)
+                    except Exception as e:
+                        print("Warning: Failed TMalign [%s]." % bTemplateChain)
+                        print(str(e))
+                        continue
+                    biomolFound = True
+                    tmscore = min(coreScore, partnerScore)
+                    print("  tmscore:\t%5.2f" % tmscore)
+                    energy = -interfaceEnergy.get(coreAligned, partnerAligned)
+                    print("  energy:\t%5.2f" % energy)
+                    clashes = interfaceEnergy.getClashes(coreMolecule, partnerMolecule)
+                    print("  clashes:\t%5.2f" % clashes)
+                    springscore = tmscore + energy * args.wenergy
+                    print("  springscore:\t%5.2f" % springscore)
+                    if springscore > maxScore and clashes < args.maxclashes:
+                        maxScore = springscore
+                        maxInfo = dict(springscore=springscore, tmscore=tmscore, energy=energy, clashes=clashes)
+                        coreMolecule.save(outputName, chainName="0")
+                        partnerMolecule.save(outputName, chainName="1", append=True)
+                        if args.showtemplate == "true":
+                            bioMolecule.save(outputName, append=True)
             if biomolFound:
                 break
     if maxInfo is not None:
