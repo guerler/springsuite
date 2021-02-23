@@ -36,7 +36,7 @@ def createMonomer(resultFile, identifier, pdbDatabase, outputName):
     return True
 
 
-def TMalign(fileA, fileB, tmName="temp/tmalign"):
+def TMalign(fileA, fileB, tmName="temp/tmalign", apply=True):
     try:
         tmResult = open("%s.out" % tmName, "w")
         subprocess.run(["tmalign", fileA, fileB, "-m", "%s.mat" % tmName], check=True, stdout=tmResult)
@@ -62,10 +62,13 @@ def TMalign(fileA, fileB, tmName="temp/tmalign"):
             tmscore = max(tmscore, float(line[9:17]))
         except Exception:
             raise Exception("TMalign::Failed to retrieve TMscore.")
-    molecule = Molecule(fileA)
-    for atom in molecule.atoms:
-        molecule.applyMatrix(atom, rotmat)
-    return tmscore, molecule
+    if apply:
+        molecule = Molecule(fileA)
+        for atom in molecule.atoms:
+            molecule.applyMatrix(atom, rotmat)
+        return tmscore, molecule
+    else:
+        return tmscore, rotmat
 
 
 def TMalignAlignment(bioMolecule, templateChain, tmName="temp/tmalign"):
@@ -112,7 +115,7 @@ def getFrameworks(aTemplates, bTemplates, crossReference, minScore, maxTries):
         if templateHit["score"] < minScore or maxTries == 0:
             break
         maxTries = maxTries - 1
-        yield templateHit["templatePair"]
+        yield templateHit["templatePair"], templateHit["score"]
 
 
 def createModel(args):
@@ -139,7 +142,7 @@ def createModel(args):
     maxInfo = None
     minScore = float(args.minscore)
     maxTries = int(args.maxtries)
-    for [aTemplate, bTemplate] in getFrameworks(aTemplates, bTemplates, crossReference, minScore=minScore, maxTries=maxTries):
+    for [aTemplate, bTemplate], zscore in getFrameworks(aTemplates, bTemplates, crossReference, minScore=minScore, maxTries=maxTries):
         print("Evaluating Complex Template: %s." % aTemplate)
         templateFile = "temp/template.pdb"
         createPDB(aTemplate, pdbDatabase, templateFile)
@@ -169,6 +172,7 @@ def createModel(args):
                     continue
                 biomolFound = True
                 tmscore = min(coreScore, partnerScore)
+                print("  zscore:\t%5.2f" % zscore)
                 print("  tmscore:\t%5.2f" % tmscore)
                 energy = -interfaceEnergy.get(coreAligned, partnerAligned)
                 print("  energy:\t%5.2f" % energy)
@@ -176,19 +180,27 @@ def createModel(args):
                 print("  clashes:\t%5.2f" % clashes)
                 springscore = tmscore + energy * args.wenergy
                 print("  springscore:\t%5.2f" % springscore)
-                if springscore > maxScore and clashes < args.maxclashes:
+                if springscore > maxScore and clashes <= args.maxclashes:
                     maxScore = springscore
-                    maxInfo = dict(springscore=springscore, tmscore=tmscore, energy=energy, clashes=clashes)
-                    coreMolecule.save(outputName, chainName="0")
-                    partnerMolecule.save(outputName, chainName="1", append=True)
+                    maxInfo = dict(atemplate=aTemplate, btemplate=bTemplate, zscore=zscore, springscore=springscore, tmscore=tmscore, energy=energy, clashes=clashes)
+                    modelScore, modelMatrix = TMalign("temp/template_0.pdb", "temp/monomerA.rebuilt.pdb", apply=False)
+                    for atom in coreMolecule.atoms:
+                        coreMolecule.applyMatrix(atom, modelMatrix)
+                    newOutputName = "%s.%s.%s.pdb" % (outputName, aTemplate, bTemplate)
+                    coreMolecule.save(newOutputName, chainName="0")
+                    for atom in partnerMolecule.atoms:
+                        partnerMolecule.applyMatrix(atom, modelMatrix)
+                    partnerMolecule.save(newOutputName, chainName="1", append=True)
+                    for atom in bioMolecule.atoms:
+                        bioMolecule.applyMatrix(atom, modelMatrix)
                     if args.showtemplate == "true":
-                        bioMolecule.save(outputName, append=True)
+                        bioMolecule.save(newOutputName, append=True)
             if biomolFound:
                 break
     if maxInfo is not None:
         print("Final Model:")
         for key in maxInfo:
-            print("  %s:\t%5.2f" % (key, maxInfo[key]))
+            print("  %s:\t%s" % (key, maxInfo[key]))
         print("Completed.")
     else:
         print("Warning: Failed to determine model.")
