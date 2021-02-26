@@ -34,7 +34,7 @@ def main(args):
         mkdir("temp")
     dbkit = DBKit(args.hhr_index, args.hhr_database)
     logFile = open(args.log, "w")
-    logFile.write("#namea\t nameb\t springscore\t tmscore\t energy\t clashes\n")
+    logFile.write("#namea\t nameb\t springscore\t tmscore\t energy\t clashes\t zscore\t templatea\t templateb\n")
     with open(args.pairs, "r") as file:
         for line in file:
             param = line.split()
@@ -52,11 +52,15 @@ def main(args):
             modelArgs.set(a_hhr=aFile, b_hhr=bFile, output=output)
             modelData = createModel(modelArgs)
             if modelData:
-                infoStr = "%s\t %s\t %5.2f\t %5.2f\t %5.2f\t %5.2f\n" % (aIdentifier, bIdentifier,
-                                                                         modelData["springscore"],
-                                                                         modelData["tmscore"],
-                                                                         modelData["energy"],
-                                                                         modelData["clashes"])
+                infoStr = "%s\t %s\t %5.2f\t %5.2f\t %5.2f\t %5.2f\t %5.2f\t %s\t %s\n"
+                infoStr = infoStr % (aIdentifier, bIdentifier,
+                                     modelData["springscore"],
+                                     modelData["tmscore"],
+                                     modelData["energy"],
+                                     modelData["clashes"],
+                                     modelData["zscore"],
+                                     modelData["aTemplate"],
+                                     modelData["bTemplate"])
                 logFile.write(infoStr)
                 logFile.flush()
             if isfile(aFile):
