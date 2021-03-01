@@ -224,8 +224,8 @@ def getNegativeSet(args, filterA, filterB, negativeRequired, jSize=5):
             filterAList = sorted(locations[regionA])
             filterBList = sorted(locations[regionB])
         else:
-            filterAList = list(filterA)
-            filterBList = list(filterB)
+            filterAList = sorted(filterA)
+            filterBList = sorted(filterB)
         for i, j in randomPairs(len(filterAList), len(filterBList), jSize):
             nameA = filterAList[i]
             nameB = filterBList[j]
