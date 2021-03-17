@@ -18,14 +18,14 @@
         -g '$log'
     ]]>    </command>
     <inputs>
-        <param format="tabular" name="pairs" type="data" label="Interacting Pairs" help="Tabular 2-column file containing putative protein interaction pairs." />
+        <param name="pairs" type="data" format="tabular" label="Interacting Pairs" help="Tabular 2-column file containing putative protein interaction pairs." />
+        <param name="crossreference" type="data" format="tabular" label="Cross Reference" help="SPRING PDB Cross Reference as produced by SPRING Cross tool." />
         <expand macro="hhr_source" />
         <expand macro="pdb_source" />
-        <param format="tabular" name="crossreference" type="data" label="Cross Reference" help="SPRING PDB Cross Reference as produced by SPRING Cross tool." />
         <expand macro="logfile" />
     </inputs>
     <outputs>
-        <collection type="list" label="SPRING Model Structures" name="models">
+        <collection name="models" type="list" label="SPRING Model Structures">
             <discover_datasets pattern="__name_and_ext__" directory="models" />
         </collection>
         <data format="tabular" name="log" label="SPRING Model Log">
@@ -34,7 +34,7 @@
     </outputs>
     <tests>
         <test>
-            <param name="pairs" value="model/pairs.txt" />
+            <param name="pairs" value="model/pairs.txt" ftype="tabular" />
             <conditional name="hhr_source">
                 <param name="hhr_source_selector" value="history" />
                 <param name="ffindex" value="model/hhr.ffindex" />
@@ -48,9 +48,12 @@
             <param name="crossreference" value="model/crossreference.txt" />
             <param name="logfile" value="true" />
             <output name="log" file="model/log.txt" />
+            <output_collection name="models" type="list" count="1">
+                <element name="sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2.pdb" />
+            </output_collection>
         </test>
         <test>
-            <param name="pairs" value="model/pairs.txt" />
+            <param name="pairs" value="model/pairs.txt" ftype="tabular" />
             <conditional name="hhr_source">
                 <param name="hhr_source_selector" value="indexed" />
                 <param name="hhr" value="hhr_model" />
@@ -62,6 +65,9 @@
             <param name="crossreference" value="model/crossreference.txt" />
             <param name="logfile" value="true" />
             <output name="log" file="model/log.txt" />
+            <output_collection name="models" type="list" count="1">
+                <element name="sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2.pdb" />
+            </output_collection>
         </test>
     </tests>
     <help><![CDATA[
