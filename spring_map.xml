@@ -16,23 +16,7 @@
         -g '$log'
     ]]>    </command>
     <inputs>
-        <conditional name="pdb_source">
-            <param name="pdb_source_selector" type="select" label="Custom or built-in PDB" help="Built-ins have been indexed using ffindex">
-                <option value="indexed" selected="true">Use a built-in index</option>
-                <option value="history">Use a PDB index from history</option>
-            </param>
-            <when value="indexed">
-                <param name="pdb" type="select" label="Select PDB database" help="">
-                    <options from_data_table="pdb_indices">
-                        <filter type="sort_by" column="1" />
-                        <validator type="no_options" message="No indices are available" />
-                    </options>
-                </param>
-            </when>
-            <when value="history">
-                <expand macro="ffindex_single_inputs" />
-            </when>
-        </conditional>
+        <expand macro="pdb_source" />
         <param name="list" type="data" format="tabular" label="PDB Chain Identifiers" help="List of PDB chains `PDB_CHAIN`." />
         <param name="cross" type="data" format="tabular" label="Cross Reference (unmapped)" help="Unmapped SPRING PDB Cross Reference as produced by SPRING Cross tool." />
         <param name="evalue" type="float" value="0.0" min="0.0" max="1.0" label="E-value Threshold" help="Specify an e-Value threshold to filter the alignment results" />
