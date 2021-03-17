@@ -1,9 +1,10 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 import argparse
 import math
-import pandas as pd
-from os.path import isfile
 import re
+from os.path import isfile
+
+import pandas as pd
 
 METHODS = ["Biochemical Activity",
            "Co-fractionation",
@@ -68,8 +69,9 @@ def getFilter(filterName):
 
 def getReference(fileName, filterA=None, filterB=None, minScore=None, aCol=0,
                  bCol=1, scoreCol=-1, separator=None,
-                 skipFirstLine=False, filterValues=list()):
-
+                 skipFirstLine=False, filterValues=None):
+    if not filterValues:
+        filterValues = list()
     index = dict()
     count = 0
     with open(fileName) as fp:
@@ -148,11 +150,11 @@ def getMCC(prediction, positive, positiveCount, negative):
             fp = fp + 1
         fn = positiveTotal - tp
         tn = negativeTotal - fp
-        denom = (tp+fp)*(tp+fn)*(tn+fp)*(tn+fn)
+        denom = (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
         yValue = getPercentage(tp, tp + fn)
         xValue = getPercentage(fp, fp + tn)
         if denom > 0.0:
-            mcc = (tp*tn-fp*fn)/math.sqrt(denom)
+            mcc = (tp * tn - fp * fn) / math.sqrt(denom)
             if mcc >= topMCC:
                 topMCC = mcc
                 topScore = score

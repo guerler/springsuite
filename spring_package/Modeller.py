@@ -39,7 +39,7 @@ def createMonomer(resultFile, identifier, pdbDatabase, outputName):
 def TMalign(fileA, fileB, tmName="temp/tmalign"):
     try:
         tmResult = open("%s.out" % tmName, "w")
-        subprocess.run(["tmalign", fileA, fileB, "-m", "%s.mat" % tmName], check=True, stdout=tmResult)
+        subprocess.run(["TMalign", fileA, fileB, "-m", "%s.mat" % tmName], check=True, stdout=tmResult)
         tmResult.close()
     except subprocess.CalledProcessError as e:
         raise Exception(str(e))
