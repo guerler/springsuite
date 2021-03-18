@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 import argparse
 
 from spring_package.Utilities import getCrossReference, getTemplates

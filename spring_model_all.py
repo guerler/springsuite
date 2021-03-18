@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 import argparse
 from os import mkdir, remove
 from os.path import isdir, isfile

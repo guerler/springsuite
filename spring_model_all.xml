@@ -1,51 +1,81 @@
-<tool id="spring_model_all" name="SPRING Model-All" version="0.1.0" python_template_version="3.5" license="MIT">
+<tool id="spring_model_all" name="SPRING Model-All" version="0.1.0" license="MIT">
     <description>complex structures</description>
-    <requirements>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements">
         <requirement type="package" version="1.78">biopython</requirement>
         <requirement type="package" version="20170708">tmalign</requirement>
         <requirement type="package" version="3.06">pulchra</requirement>
-    </requirements>
+    </expand>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_model_all.py' -p '$pairs' -ih '$index_hhr' -dh '$database_hhr' -i '$index_pdb' -d '$database_pdb' -c '$crossreference' -o 'models' -g '$log'
-    ]]></command>
+        python3 '$__tool_directory__/spring_model_all.py'
+        -p '$pairs'
+        @hhr_source@
+        @pdb_source@
+        -c '$crossreference'
+        -o 'models'
+        -g '$log'
+    ]]>    </command>
     <inputs>
-        <param format="tabular" name="pairs" type="data" label="Interacting Pairs" help="Tabular 2-column file containing putative protein interaction pairs."/>
-        <param format="ffindex" name="index_hhr" type="data" label="HHR Index" help="HHR Database Index file (ffindex)."/>
-        <param format="ffdata" name="database_hhr" type="data" label="HHR Database" help="HHR Database files (ffdata)."/>
-        <param format="ffindex" name="index_pdb" type="data" label="PDB Index" help="PDB Database Index file (ffindex)."/>
-        <param format="ffdata" name="database_pdb" type="data" label="PDB Database" help="PDB Database files (ffdata)."/>
-        <param format="tabular" name="crossreference" type="data" label="Cross Reference" help="SPRING PDB Cross Reference as produced by SPRING Cross tool."/>
+        <param name="pairs" type="data" format="tabular" label="Interacting Pairs" help="Tabular 2-column file containing putative protein interaction pairs." />
+        <param name="crossreference" type="data" format="tabular" label="Cross Reference" help="SPRING PDB Cross Reference as produced by SPRING Cross tool." />
+        <expand macro="hhr_source" />
+        <expand macro="pdb_source" />
+        <expand macro="logfile" />
     </inputs>
     <outputs>
-        <collection type="list" label="SPRING Model Structures" name="models">
+        <collection name="models" type="list" label="SPRING Model Structures">
             <discover_datasets pattern="__name_and_ext__" directory="models" />
         </collection>
-        <data format="tabular" name="log" label="SPRING Model Log"/>
+        <data format="tabular" name="log" label="SPRING Model Log">
+            <filter>logfile</filter>
+        </data>
     </outputs>
-    <help><![CDATA[
-Creates protein complex model from HHsearch threading results.
-    ]]></help>
     <tests>
         <test>
-            <param name="pairs" value="model/pairs.txt" />
-            <param name="index_hhr" value="model/hhr.ffindex" />
-            <param name="database_hhr" value="model/hhr.ffdata" />
-            <param name="index_pdb" value="model/pdb_structures.ffindex" />
-            <param name="database_pdb" value="model/pdb_structures.ffdata" />
+            <param name="pairs" value="model/pairs.txt" ftype="tabular" />
+            <conditional name="hhr_source">
+                <param name="hhr_source_selector" value="history" />
+                <param name="ffindex" value="model/hhr.ffindex" />
+                <param name="ffdata" value="model/hhr.ffdata" />
+            </conditional>
+            <conditional name="pdb_source">
+                <param name="pdb_source_selector" value="history" />
+                <param name="ffindex" value="model/pdb_structures.ffindex" />
+                <param name="ffdata" value="model/pdb_structures.ffdata" />
+            </conditional>
             <param name="crossreference" value="model/crossreference.txt" />
-            <output name="log" file="model/log.txt"/>
+            <param name="logfile" value="true" />
+            <output name="log" file="model/log.txt" />
+            <output_collection name="models" type="list" count="1">
+                <element name="sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2.pdb" />
+            </output_collection>
+        </test>
+        <test>
+            <param name="pairs" value="model/pairs.txt" ftype="tabular" />
+            <conditional name="hhr_source">
+                <param name="hhr_source_selector" value="indexed" />
+                <param name="hhr" value="hhr_model" />
+            </conditional>
+            <conditional name="pdb_source">
+                <param name="pdb_source_selector" value="indexed" />
+                <param name="pdb" value="pdb01_model" />
+            </conditional>
+            <param name="crossreference" value="model/crossreference.txt" />
+            <param name="logfile" value="true" />
+            <output name="log" file="model/log.txt" />
+            <output_collection name="models" type="list" count="1">
+                <element name="sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2.pdb" />
+            </output_collection>
         </test>
     </tests>
-    <citations>
-        <citation type="bibtex">
-@misc{githubhh-suite,
-author = {Guerler, Govindarajoo, Zhang},
-year = {2013},
-title = {Mapping Monomeric Threading to Protein-Protein Structure Prediction},
-publisher = {ACS Publications},
-journal = {Journal of Chemical Information and Modeling},
-url = {https://pubs.acs.org/doi/10.1021/ci300579r},
-}
-        </citation>
-    </citations>
+    <help><![CDATA[
+
+**What it does**
+
+Creates protein complex model from HHsearch threading results.
+
+    ]]>    </help>
+    <expand macro="citations" />
 </tool>

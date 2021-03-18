@@ -1,11 +1,11 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 import argparse
 from os import mkdir, system
-from os.path import isfile, isdir
+from os.path import isdir, isfile
 
 from spring_package.DBKit import DBKit
 from spring_package.Molecule import Molecule
-from spring_package.Utilities import getId, getChain, getName
+from spring_package.Utilities import getChain, getId, getName
 
 
 def getPDB(line, pdbDatabase):
@@ -48,7 +48,7 @@ def findMatch(identifier, templates, databaseFile, pdbDatabase, evalue=0.0):
     maxMatch = None
     try:
         with open(resultFile) as file:
-            for i in range(38):
+            for _i in range(38):
                 line = next(file)
             columns = line.split()
             maxMatch = getId(columns[0])
@@ -122,7 +122,7 @@ def main(args):
             coreId = refEntry["core"]
             partnerId = refEntry["partner"]
             if "coreMatch" in refEntry and "partnerMatch" in refEntry:
-                entry = "%s\t%s\t%s\t%s\n" % (refEntry["coreMatch"], refEntry["partnerMatch"], refEntry["core"], refEntry["partner"])
+                entry = f"{refEntry['coreMatch']}\t{refEntry['partnerMatch']}\t{refEntry['core']}\t{refEntry['partner']}\n"
                 output_file.write(entry)
                 entryCount = entryCount + 1
             else:

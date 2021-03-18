@@ -1,15 +1,26 @@
-<tool id="spring_mcc" name="SPRING MCC" version="0.1.0" python_template_version="3.5" license="MIT">
+<tool id="spring_mcc" name="SPRING MCC" version="0.1.0" license="MIT">
     <description>plot generator</description>
-    <requirements>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements">
         <requirement type="package" version="3.3.2">matplotlib</requirement>
         <requirement type="package" version="1.2.0">pandas</requirement>
-    </requirements>
+    </expand>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_mcc.py' -i '$input' -b '$database' -e '$experiment' -l '$sampling.locations' -ra '$sampling.regiona' -rb '$sampling.regionb' -n '$sampling.negative' -o '$output'
-    ]]></command>
+        python3 '$__tool_directory__/spring_mcc.py'
+        -i '$input'
+        -b '$database'
+        -e '$experiment'
+        -l '$sampling.locations'
+        -ra '$sampling.regiona'
+        -rb '$sampling.regionb'
+        -n '$sampling.negative'
+        -o '$output'
+    ]]>    </command>
     <inputs>
-        <param name="experiment" type="text" label="Title" help="Experiment title" value="Results"/>
-        <param name="input" type="data" format="tabular" label="Interacting Pairs" help="Prediction input containing UniProt Accession codes (2-columns)."/>
+        <param name="experiment" type="text" label="Title" help="Experiment title" value="Results" />
+        <param name="input" type="data" format="tabular" label="Interacting Pairs" help="Prediction input containing UniProt Accession codes (2-columns)." />
         <conditional name="sampling">
             <param name="type" type="select" label="Non-interacting Pairs" display="radio" help="Specify how to determine non-interacting pairs.">
                 <option value="random">Random Sampling</option>
@@ -27,8 +38,8 @@
                     <option value="Nucleus">Nucleus</option>
                     <option value="Periplasm">Periplasm</option>
                     <option value="Secreted">Secreted</option>
-                 </param>
-                 <param name="regionb" type="select" label="Choose Second Subcellular Location">
+                </param>
+                <param name="regionb" type="select" label="Choose Second Subcellular Location">
                     <option value="Cell">Cell</option>
                     <option value="Cytoplasm">Cytoplasm</option>
                     <option value="Membrane" selected="True">Membrane</option>
@@ -36,7 +47,7 @@
                     <option value="Nucleus">Nucleus</option>
                     <option value="Periplasm">Periplasm</option>
                     <option value="Secreted">Secreted</option>
-                 </param>
+                </param>
             </when>
             <when value="random">
                 <param name="locations" type="hidden" value="" />
@@ -51,7 +62,7 @@
                 <param name="regionb" type="hidden" value="" />
             </when>
         </conditional>
-        <param name="database" type="data" format="tabular" label="BioGRID Database" help="BioGRID Database in TAB 3.0 format."/>
+        <param name="database" type="data" format="tabular" label="BioGRID Database" help="BioGRID Database in TAB 3.0 format." />
     </inputs>
     <outputs>
         <data format="png" name="output" label="SPRING MCC Image" />
@@ -64,19 +75,12 @@
         </test>
     </tests>
     <help><![CDATA[
+
+**What it does**
+
 This tool generates a MCC plot for a given 2-column tabular prediction file containing UniProt Accession codes. The prediction is compared
 to a given BioGRID database file in TAB 3.0 format. Non-interacting protein pairs are randomly sampled.
-    ]]></help>
-    <citations>
-        <citation type="bibtex">
-@misc{githubhh-suite,
-author = {Guerler, Govindarajoo, Zhang},
-year = {2013},
-title = {Mapping Monomeric Threading to Protein-Protein Structure Prediction},
-publisher = {ACS Publications},
-journal = {Journal of Chemical Information and Modeling},
-url = {https://pubs.acs.org/doi/10.1021/ci300579r},
-}
-        </citation>
-    </citations>
+
+    ]]>    </help>
+    <expand macro="citations" />
 </tool>

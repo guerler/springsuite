@@ -1,37 +1,50 @@
-<tool id="spring_cross" name="SPRING Cross" version="0.1.0" python_template_version="3.5" license="MIT">
+<tool id="spring_cross" name="SPRING Cross" version="0.1.0" license="MIT">
     <description>reference builder</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_cross.py' -i '$index' -d '$database' -o '$output' -g '$log'
-    ]]></command>
+        python3 '$__tool_directory__/spring_cross.py'
+        @pdb_source@
+        -o '$output'
+        -g '$log'
+    ]]>    </command>
     <inputs>
-        <param format="ffindex" name="index" type="data" label="PDB Database Index" help="Database Index file."/>
-        <param format="ffdata" name="database" type="data" label="PDB Database" help="Database Data file."/>
+        <expand macro="pdb_source" />
+        <expand macro="logfile" />
     </inputs>
     <outputs>
-        <data format="tabular" name="output" label="SPRING Cross Reference"/>
-        <data format="txt" name="log" label="SPRING Cross Log"/>
+        <data format="tabular" name="output" label="SPRING Cross Reference" />
+        <data format="txt" name="log" label="SPRING Cross Log">
+            <filter>logfile</filter>
+        </data>
     </outputs>
-    <help><![CDATA[
-Creates a 2-column cross reference between a list of input chains and all interacting chains found in the provided PDB database. This reference is required as 
-input for the SPRING min-Z calculator.
-    ]]></help>
     <tests>
-        <test>
-            <param name="index" value="cross/pdb.ffindex" />
-            <param name="database" value="cross/pdb.ffdata" />
-            <output name="output" file="cross/reference.tabular"/>
+        <test expect_num_outputs="1">
+            <conditional name="pdb_source">
+                <param name="pdb_source_selector" value="history" />
+                <param name="ffindex" value="cross/pdb.ffindex" />
+                <param name="ffdata" value="cross/pdb.ffdata" />
+            </conditional>
+            <param name="logfile" value="false" />
+            <output name="output" file="cross/reference.tabular" />
+        </test>
+        <test expect_num_outputs="2">
+            <conditional name="pdb_source">
+                <param name="pdb_source_selector" value="indexed" />
+                <param name="pdb" value="pdb01_cross" />
+            </conditional>
+            <param name="logfile" value="true" />
+            <output name="output" file="cross/reference.tabular" />
         </test>
     </tests>
-    <citations>
-        <citation type="bibtex">
-@misc{githubhh-suite,
-author = {Guerler, Govindarajoo, Zhang},
-year = {2013},
-title = {Mapping Monomeric Threading to Protein-Protein Structure Prediction},
-publisher = {ACS Publications},
-journal = {Journal of Chemical Information and Modeling},
-url = {https://pubs.acs.org/doi/10.1021/ci300579r},
-}
-        </citation>
-    </citations>
+    <help><![CDATA[
+
+**What it does**
+
+Creates a 2-column cross reference between a list of input chains and all interacting chains found in the provided PDB database.
+This reference is required as input for the SPRING min-Z calculator.
+
+    ]]>    </help>
+    <expand macro="citations" />
 </tool>

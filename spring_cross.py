@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 import argparse
 from os import mkdir
 from os.path import isdir
@@ -15,9 +15,7 @@ def hasInterface(mol, chainA, chainB, distance=10.0, contacts=5):
         atomA = mol.calpha[chainA][residueA]
         for residueB in mol.calpha[chainB]:
             atomB = mol.calpha[chainB][residueB]
-            dist2 = ((atomA["x"] - atomB["x"]) ** 2 +
-                     (atomA["y"] - atomB["y"]) ** 2 +
-                     (atomA["z"] - atomB["z"]) ** 2)
+            dist2 = ((atomA["x"] - atomB["x"]) ** 2 + (atomA["y"] - atomB["y"]) ** 2 + (atomA["z"] - atomB["z"]) ** 2)
             if dist2 < distance:
                 count = count + 1
                 if count >= contacts:
