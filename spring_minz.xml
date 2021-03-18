@@ -36,14 +36,14 @@
         #end if
     ]]>    </command>
     <inputs>
-        <param name="targets" format="txt" multiple="true" label="Target profiles" help="Homology search result of target/query profiles `hhr`."/>
+        <param name="targets" format="hhr" multiple="true" label="Target profiles" help="Homology search result of target/query profiles in 'hhr' format."/>
         <conditional name="input_type">
             <param name="input_type_selector" type="select" label="Identify interactions across sets?">
                 <option value="yes" selected="True">yes</option>
                 <option value="no">no</option>
             </param>
             <when value="yes">
-                <param name="inputs" format="txt" multiple="true" label="Input profiles" help="Homology search results of input profiles `hhr`."/>
+                <param name="inputs" format="hhr" multiple="true" label="Input profiles" help="Homology search results of input profiles in 'hhr' format."/>
             </when>
             <when value="no"/>
         </conditional>
@@ -61,10 +61,10 @@
         <test expect_num_outputs="1">
             <param name="targets">
                 <collection type="list">
-                    <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr"/>
-                    <element name="NP_000290.2.hhr" value="minz/NP_000290.2.hhr"/>
-                    <element name="NP_000548.2.hhr" value="minz/NP_000548.2.hhr"/>
-                    <element name="NP_000836.2.hhr" value="minz/NP_000836.2.hhr"/>
+                    <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr"/>
+                    <element name="NP_000290.2.hhr" value="minz/NP_000290.2.hhr" ftype="hhr"/>
+                    <element name="NP_000548.2.hhr" value="minz/NP_000548.2.hhr" ftype="hhr"/>
+                    <element name="NP_000836.2.hhr" value="minz/NP_000836.2.hhr" ftype="hhr"/>
                 </collection>
             </param>
             <conditional name="input_type">
@@ -76,17 +76,17 @@
         <test expect_num_outputs="1">
             <param name="targets">
                 <collection type="list">
-                    <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr"/>
+                    <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr"/>
                 </collection>
             </param>
             <conditional name="input_type">
                 <param name="input_type_selector" value="true"/>
                 <param name="inputs">
                     <collection type="list">
-                        <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr"/>
-                        <element name="NP_000290.2.hhr" value="minz/NP_000290.2.hhr"/>
-                        <element name="NP_000548.2.hhr" value="minz/NP_000548.2.hhr"/>
-                        <element name="NP_000836.2.hhr" value="minz/NP_000836.2.hhr"/>
+                        <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr"/>
+                        <element name="NP_000290.2.hhr" value="minz/NP_000290.2.hhr" ftype="hhr"/>
+                        <element name="NP_000548.2.hhr" value="minz/NP_000548.2.hhr" ftype="hhr"/>
+                        <element name="NP_000836.2.hhr" value="minz/NP_000836.2.hhr" ftype="hhr"/>
                     </collection>
                 </param>
             </conditional>
