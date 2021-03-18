@@ -1,12 +1,9 @@
-<tool id="spring_mcc" name="SPRING MCC" version="0.1.0" license="MIT">
+<tool id="spring_mcc" name="SPRING MCC" license="MIT" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01">
     <description>plot generator</description>
     <macros>
         <import>macros.xml</import>
     </macros>
-    <expand macro="requirements">
-        <requirement type="package" version="3.3.2">matplotlib</requirement>
-        <requirement type="package" version="1.2.0">pandas</requirement>
-    </expand>
+    <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
         python3 '$__tool_directory__/spring_mcc.py'
         -i '$input'
@@ -71,7 +68,7 @@
         <test>
             <param name="input" value="mcc/human_hv1h2.txt" />
             <param name="database" value="mcc/biogrid_fret.txt" />
-            <output name="output" file="mcc/human_hv1h2.png" />
+            <output name="output" file="mcc/human_hv1h2.png" compare="sim_size" />
         </test>
     </tests>
     <help><![CDATA[

@@ -1,13 +1,9 @@
-<tool id="spring_model_all" name="SPRING Model-All" version="0.1.0" license="MIT">
+<tool id="spring_model_all" name="SPRING Model-All" license="MIT" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01">
     <description>complex structures</description>
     <macros>
         <import>macros.xml</import>
     </macros>
-    <expand macro="requirements">
-        <requirement type="package" version="1.78">biopython</requirement>
-        <requirement type="package" version="20170708">tmalign</requirement>
-        <requirement type="package" version="3.06">pulchra</requirement>
-    </expand>
+    <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
         python3 '$__tool_directory__/spring_model_all.py'
         -p '$pairs'

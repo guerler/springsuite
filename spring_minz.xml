@@ -1,4 +1,4 @@
-<tool id="spring_minz" name="SPRING Min-Z" version="0.1.2" license="MIT">
+<tool id="spring_minz" name="SPRING Min-Z" license="MIT" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01">
     <description>filter operation</description>
     <macros>
         <import>macros.xml</import>
