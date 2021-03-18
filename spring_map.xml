@@ -1,11 +1,9 @@
-<tool id="spring_map" name="SPRING Map" version="0.1.0" license="MIT">
+<tool id="spring_map" name="SPRING Map" license="MIT" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01">
     <description>with BLAST</description>
     <macros>
         <import>macros.xml</import>
     </macros>
-    <expand macro="requirements">
-        <requirement type="package" version="2.10.1">blast</requirement>
-    </expand>
+    <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
         python3 '$__tool_directory__/spring_map.py'
         @pdb_source@

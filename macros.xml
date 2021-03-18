@@ -1,10 +1,13 @@
 <macros>
     <xml name="requirements">
         <requirements>
-            <requirement type="package" version="3.9">python</requirement>
+            <requirement type="package" version="@TOOL_VERSION@">springsuite</requirement>
             <yield />
         </requirements>
     </xml>
+    <token name="@TOOL_VERSION@">0.1</token>
+    <token name="@VERSION_SUFFIX@">0</token>
+
     <xml name="ffindex_single_inputs">
         <param name="ffdata" type="data" format="ffdata" label="PDB Database" help="Database Data file." />
         <param name="ffindex" type="data" format="ffindex" label="PDB Database Index" help="Database Index file." />

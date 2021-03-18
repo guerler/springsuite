@@ -1,8 +1,9 @@
-<tool id="spring_cross" name="SPRING Cross" version="0.1.0" license="MIT">
+<tool id="spring_cross" name="SPRING Cross" license="MIT" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01">
     <description>reference builder</description>
     <macros>
         <import>macros.xml</import>
     </macros>
+    <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
         python3 '$__tool_directory__/spring_cross.py'
         @pdb_source@

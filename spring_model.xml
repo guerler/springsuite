@@ -1,34 +1,30 @@
-<tool id="spring_model" name="SPRING Model" version="0.1.0" license="MIT">
+<tool id="spring_model" name="SPRING Model" license="MIT" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01">
     <description>complex structures</description>
     <macros>
         <import>macros.xml</import>
     </macros>
-    <expand macro="requirements">
-        <requirement type="package" version="1.78">biopython</requirement>
-        <requirement type="package" version="20170708">tmalign</requirement>
-        <requirement type="package" version="3.06">pulchra</requirement>
-    </expand>
+    <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
         python3 '$__tool_directory__/spring_model.py'
-        -a '$a'
-        -b '$b'
+        -a '$first_target'
+        -b '$second_target'
         @pdb_source@
         -c '$cross'
         -o '$output'
     ]]>    </command>
     <inputs>
-        <param name="a" format="hhr" type="data" label="First HHR target file" help="Threading result for target sequence using HHsearch." />
-        <param name="b" format="hhr" type="data" label="Second HHR target file" help="Threading result for target sequence using HHsearch." />
-        <expand macro="pdb_source" />
+        <param name="first_target" format="hhr" type="data" label="First HHR target file" help="Threading result for target sequence using HHsearch." />
+        <param name="second_target" format="hhr" type="data" label="Second HHR target file" help="Threading result for target sequence using HHsearch." />
         <param name="cross" format="tabular" type="data" label="Cross Reference" help="SPRING PDB Cross Reference as produced by SPRING Cross tool." />
+        <expand macro="pdb_source" />
     </inputs>
     <outputs>
         <data format="pdb" name="output" label="SPRING Model Structure" />
     </outputs>
     <tests>
         <test>
-            <param name="a" value="model/ACE2_HUMAN.hhr" ftype="hhr" />
-            <param name="b" value="model/SPIKE_SARS2.hhr" ftype="hhr" />
+            <param name="first_target" value="model/ACE2_HUMAN.hhr" ftype="hhr" />
+            <param name="second_target" value="model/SPIKE_SARS2.hhr" ftype="hhr" />
             <conditional name="pdb_source">
                 <param name="pdb_source_selector" value="history" />
                 <param name="ffindex" value="model/pdb_structures.ffindex" />
@@ -38,8 +34,8 @@
             <output name="output" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2.pdb" />
         </test>
         <test>
-            <param name="a" value="model/ACE2_HUMAN.hhr" ftype="hhr" />
-            <param name="b" value="model/SPIKE_SARS2.hhr" ftype="hhr" />
+            <param name="first_target" value="model/ACE2_HUMAN.hhr" ftype="hhr" />
+            <param name="second_target" value="model/SPIKE_SARS2.hhr" ftype="hhr" />
             <conditional name="pdb_source">
                 <param name="pdb_source_selector" value="indexed" />
                 <param name="pdb" value="pdb01_model" />
