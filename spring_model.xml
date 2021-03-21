@@ -5,7 +5,7 @@
     </macros>
     <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_model.py'
+    spring_model.py
         -a '$first_target'
         -b '$second_target'
         @pdb_source@
