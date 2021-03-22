@@ -16,7 +16,7 @@
                 ln -s '${input}' 'inputs/${input.element_identifier}' &&
                 echo '${input.element_identifier}' >> 'input_list' &&
             #end for
-            python3 '$__tool_directory__/spring_minz.py'
+            spring_minz.py
             -tl target_list
             -tp targets
             -il input_list
@@ -26,7 +26,7 @@
             -o '$output'
             -l '$log'
         #else
-            python3 '$__tool_directory__/spring_minz.py'
+            spring_minz.py
             -tl target_list
             -tp targets
             -m '$minscore'

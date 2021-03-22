@@ -5,7 +5,7 @@
     </macros>
     <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_map.py'
+    spring_map.py
         @pdb_source@
         -l '$list'
         -c '$cross'

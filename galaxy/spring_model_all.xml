@@ -5,7 +5,7 @@
     </macros>
     <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
-        python3 '$__tool_directory__/spring_model_all.py'
+    spring_model_all.py
         -p '$pairs'
         @hhr_source@
         @pdb_source@
