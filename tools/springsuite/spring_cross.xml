@@ -9,7 +9,7 @@
         @pdb_source@
         -o '$output'
         -g '$log'
-    ]]>    </command>
+    ]]></command>
     <inputs>
         <expand macro="pdb_source" />
         <expand macro="logfile" />
