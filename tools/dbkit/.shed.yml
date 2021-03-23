@@ -1,0 +1,5 @@
+description: Creates ffindex/ffdata database files from individual files
+long_description: DBKit is capable of downloading individual files from external resources and creating a ffindex/ffdata database file pair. Database file pairs can also be constructed from collections. Additionally this package contains tools to extract and merge database files.
+homepage_url: https://github.com/guerler/spring
+name: dbkit
+owner: guerler
