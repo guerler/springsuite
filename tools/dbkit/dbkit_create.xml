@@ -1,4 +1,4 @@
-<tool id="dbkit_create" name="DBKit Create" version="0.1.1" license="MIT" profile="20.01">
+<tool id="ffindex_dbkit_create" name="DBKit Create" version="0.1.1" license="MIT" profile="20.01">
     <description>database</description>
     <macros>
         <import>macros.xml</import>

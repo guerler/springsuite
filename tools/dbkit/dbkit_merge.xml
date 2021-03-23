@@ -1,4 +1,4 @@
-<tool id="dbkit_merge" name="DBKit Merge" version="0.1.1" license="MIT" profile="20.01">
+<tool id="ffindex_dbkit_merge" name="DBKit Merge" version="0.1.1" license="MIT" profile="20.01">
     <description>two databases</description>
     <macros>
         <import>macros.xml</import>
