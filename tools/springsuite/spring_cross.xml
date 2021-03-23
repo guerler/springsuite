@@ -9,7 +9,7 @@
         @pdb_source@
         -o '$output'
         -g '$log'
-    ]]>    </command>
+    ]]></command>
     <inputs>
         <expand macro="pdb_source" />
         <expand macro="logfile" />
@@ -46,6 +46,6 @@
 Creates a 2-column cross reference between a list of input chains and all interacting chains found in the provided PDB database.
 This reference is required as input for the SPRING min-Z calculator.
 
-    ]]>    </help>
+    ]]></help>
     <expand macro="citations" />
 </tool>
