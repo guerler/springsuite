@@ -23,8 +23,8 @@ def getIdentifiers(args):
                 entry = entry.lower()
             elif args.idcase == "upper":
                 entry = entry.upper()
-            if args.idsuffix:
-                entry = "%s%s" % (entry, args.idsuffix)
+            if args.idextension:
+                entry = "%s%s" % (entry, args.idextension)
             if args.idprefix:
                 entry = "%s%s" % (args.idprefix, entry)
             entries.add(entry)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--path', help='Path to files', required=False)
     parser.add_argument('-il', '--idlength', help='Format Identifier Length (integer)', required=False, default="0")
     parser.add_argument('-ic', '--idcase', help='Format Identifier Case (lower, upper)', required=False, default=None)
-    parser.add_argument('-is', '--idsuffix', help='Format Identifier Suffix', required=False, default=None)
+    parser.add_argument('-ie', '--idextension', help='Format Identifier Suffix', required=False, default=None)
     parser.add_argument('-ip', '--idprefix', help='Format Identifier Prefix', required=False, default=None)
     parser.add_argument('-o', '--index', help='Output Database Index', required=True)
     parser.add_argument('-d', '--database', help='Output Database', required=True)
