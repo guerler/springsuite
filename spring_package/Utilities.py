@@ -19,8 +19,11 @@ def getChain(identifier):
 
 
 def getName(identifier):
-    pdb = identifier[:4].lower()
-    return pdb
+    if identifier.startswith("pdb"):
+        pdb = identifier[3:7]
+    else:
+        pdb = identifier[:4]
+    return pdb.lower()
 
 
 def getCrossReference(crossReferenceFile, allPartners=False):
