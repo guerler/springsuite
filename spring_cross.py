@@ -38,7 +38,7 @@ def main(args):
     for pdb in sorted(entries):
         print("Processing %s" % pdb)
         pdbFile = "temp/temp.pdb"
-        pdbDatabaseId = "%s.pdb" % pdb
+        pdbDatabaseId = "pdb%s.ent" % pdb
         pdbDatabase.createFile(pdbDatabaseId, pdbFile)
         try:
             mol = Molecule(pdbFile)

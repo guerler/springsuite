@@ -12,7 +12,7 @@ def getPDB(line, pdbDatabase):
     pdb = getName(line)
     pdbChain = getChain(line)
     pdbFile = "temp/temp.pdb"
-    pdbDatabaseId = "%s.pdb" % pdb
+    pdbDatabaseId = "pdb%s.ent" % pdb
     pdbDatabase.createFile(pdbDatabaseId, pdbFile)
     return pdbFile, pdbChain
 
