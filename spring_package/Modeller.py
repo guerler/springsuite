@@ -11,13 +11,14 @@ from spring_package.Utilities import getChain, getCrossReference, getName, getTe
 
 def createPDB(identifier, pdbDatabase, outputName):
     pdb = getName(identifier)
-    pdbDatabaseId = "%s.pdb" % pdb
+    pdbDatabaseId = "pdb%s.ent" % pdb
     return pdbDatabase.createFile(pdbDatabaseId, outputName)
 
 
 def createMonomer(resultFile, identifier, pdbDatabase, outputName):
     print("Building model with: %s." % identifier)
     if not createPDB(identifier, pdbDatabase, outputName):
+        print("Template not found in database [%s]" % identifier)
         return False
     template = Molecule(outputName)
     pdbChain = getChain(identifier)
