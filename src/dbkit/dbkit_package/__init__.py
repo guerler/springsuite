@@ -1,3 +1,3 @@
 """
-Package for springsuite
+Package for dbkit
 """

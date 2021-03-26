@@ -1,5 +1,5 @@
 from os.path import isfile
-
+import gzip
 
 class DBKit:
     def __init__(self, indexFile, databaseFile):
@@ -20,7 +20,9 @@ class DBKit:
                 except Exception:
                     raise Exception("Invalid DBKit Index file format: %s." % line)
 
-    def createFile(self, identifier, outputName):
+    def createFile(self, identifier, outputName, zipped=None):
+        if zipped:
+            identifier = "%s.%s" % (identifier, zipped)
         if identifier in self.index:
             entry = self.index[identifier]
             start = entry[0]
@@ -31,6 +33,13 @@ class DBKit:
                 outputFile = open(outputName, "w")
                 outputFile.write(content)
                 outputFile.close()
+                if zipped:
+                    outputFile = gzip.open(outputName, 'rb')
+                    content = outputFile.read()
+                    outputFile.close()
+                    outputFile = open(outputName, "w")
+                    outputFile.write(content)
+                    outputFile.close()
             return True
         else:
             return False

@@ -27,8 +27,8 @@
             <param name="second_target" value="model/SPIKE_SARS2.hhr" ftype="hhr" />
             <conditional name="pdb_source">
                 <param name="pdb_source_selector" value="history" />
-                <param name="ffindex" value="model/pdb_structures.ffindex" />
-                <param name="ffdata" value="model/pdb_structures.ffdata" />
+                <param name="ffindex" value="model/pdb.ffindex" />
+                <param name="ffdata" value="model/pdb.ffdata" />
             </conditional>
             <param name="cross" value="model/crossreference.txt" />
             <output name="output" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2.pdb" />
