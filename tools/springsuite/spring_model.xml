@@ -43,6 +43,17 @@
             <param name="cross" value="model/crossreference.txt" />
             <output name="output" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2.pdb" />
         </test>
+        <test>
+            <param name="first_target" value="model/ACE2_HUMAN.hhr" ftype="hhr" />
+            <param name="second_target" value="model/SPIKE_SARS2.hhr" ftype="hhr" />
+            <conditional name="pdb_source">
+                <param name="pdb_source_selector" value="indexed" />
+                <param name="pdb" value="pdb02_model" />
+                <param name="zipped" value="gz" />
+            </conditional>
+            <param name="cross" value="model/crossreference.txt" />
+            <output name="output" file="model/sp|Q9BYF1|ACE2_HUMAN.sp|P0DTC2|SPIKE_SARS2_1.pdb" />
+        </test>
     </tests>
     <help><![CDATA[
 

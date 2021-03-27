@@ -27,19 +27,16 @@ class DBKit:
             entry = self.index[identifier]
             start = entry[0]
             size = entry[1]
-            with open(self.databaseFile) as file:
+            with open(self.databaseFile, "rb") as file:
                 file.seek(start)
                 content = file.read(size)
-                outputFile = open(outputName, "w")
-                outputFile.write(content)
-                outputFile.close()
-                if zipped:
-                    outputFile = gzip.open(outputName, 'rb')
-                    content = outputFile.read()
-                    outputFile.close()
-                    outputFile = open(outputName, "w")
+                with open(outputName, "wb") as outputFile:
                     outputFile.write(content)
-                    outputFile.close()
+            if zipped:
+                with gzip.open(outputName, "rb") as outputFile:
+                    content = outputFile.read()
+                with open(outputName, "wb") as outputFile:
+                    outputFile.write(content)
             return True
         else:
             return False
