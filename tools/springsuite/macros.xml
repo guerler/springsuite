@@ -8,7 +8,7 @@
             <yield />
         </requirements>
     </xml>
-    <token name="@TOOL_VERSION@">0.1</token>
+    <token name="@TOOL_VERSION@">0.2</token>
     <token name="@VERSION_SUFFIX@">0</token>
 
     <xml name="ffindex_single_inputs">
