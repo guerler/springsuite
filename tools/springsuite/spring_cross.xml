@@ -30,6 +30,15 @@
             <param name="logfile" value="false" />
             <output name="output" file="cross/reference.tabular" />
         </test>
+        <test expect_num_outputs="1">
+            <conditional name="pdb_source">
+                <param name="pdb_source_selector" value="indexed" />
+                <param name="pdb" value="pdb02_cross" />
+                <param name="zipped" value="gz" />
+            </conditional>
+            <param name="logfile" value="false" />
+            <output name="output" file="cross/reference.tabular" />
+        </test>
         <test expect_num_outputs="2">
             <conditional name="pdb_source">
                 <param name="pdb_source_selector" value="indexed" />

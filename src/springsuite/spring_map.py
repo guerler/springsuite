@@ -8,12 +8,12 @@ from spring_package.Molecule import Molecule
 from spring_package.Utilities import getChain, getId, getName
 
 
-def getPDB(line, pdbDatabase):
+def getPDB(line, pdbDatabase, zipped):
     pdb = getName(line)
     pdbChain = getChain(line)
     pdbFile = "temp/temp.pdb"
-    pdbDatabaseId = "%s.pdb" % pdb
-    pdbDatabase.createFile(pdbDatabaseId, pdbFile)
+    pdbDatabaseId = "pdb%s.ent" % pdb
+    pdbDatabase.createFile(pdbDatabaseId, pdbFile, zipped=zipped)
     return pdbFile, pdbChain
 
 
@@ -28,7 +28,7 @@ def getSequences(fileName):
     return sequences
 
 
-def findMatch(identifier, templates, databaseFile, pdbDatabase, evalue=0.0):
+def findMatch(identifier, templates, databaseFile, pdbDatabase, evalue=0.0, zipped=None):
     if identifier in templates:
         return identifier
     resultSub = identifier[:2]
@@ -38,7 +38,7 @@ def findMatch(identifier, templates, databaseFile, pdbDatabase, evalue=0.0):
         resultDir = "temp/%s" % resultSub
         if not isdir(resultDir):
             mkdir(resultDir)
-        pdbFile, pdbChain = getPDB(identifier, pdbDatabase)
+        pdbFile, pdbChain = getPDB(identifier, pdbDatabase, zipped=None)
         mol = Molecule(pdbFile)
         seq = mol.getSequence(pdbChain)
         with open(fastaFile, "w") as fasta:
@@ -76,7 +76,7 @@ def main(args):
         with open(args.list) as file:
             for rawId in file:
                 templateId = getId(rawId)
-                pdbFile, pdbChain = getPDB(templateId, pdbDatabase)
+                pdbFile, pdbChain = getPDB(templateId, pdbDatabase, zipped=args.zipped)
                 try:
                     templateMol = Molecule(pdbFile)
                     templateSeq = templateMol.getSequence(pdbChain)
@@ -104,10 +104,10 @@ def main(args):
     for refEntry in crossReference:
         coreId = refEntry["core"]
         logFile.write("Processing %s.\n" % coreId)
-        coreMatch = findMatch(coreId, templates, templateSequenceFile, pdbDatabase, evalue=args.evalue)
+        coreMatch = findMatch(coreId, templates, templateSequenceFile, pdbDatabase, evalue=args.evalue, zipped=args.zipped)
         partnerId = refEntry["partner"]
         logFile.write("Processing %s.\n" % partnerId)
-        partnerMatch = findMatch(partnerId, templates, templateSequenceFile, pdbDatabase, evalue=args.evalue)
+        partnerMatch = findMatch(partnerId, templates, templateSequenceFile, pdbDatabase, evalue=args.evalue, zipped=args.zipped)
         if partnerMatch is None or coreMatch is None:
             logFile.write("Warning: Failed alignment [%s, %s].\n" % (coreId, partnerId))
         else:
@@ -140,5 +140,6 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output', help='Cross reference', required=True)
     parser.add_argument('-g', '--log', help='Log File', required=True)
     parser.add_argument('-e', '--evalue', help='e-Value threshold', type=float, default=0.0)
+    parser.add_argument('-z', '--zipped', help="Zipped extension in PDB Database", required=False, default="")
     args = parser.parse_args()
     main(args)

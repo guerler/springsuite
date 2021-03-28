@@ -1,13 +1,13 @@
 <macros>
     <xml name="requirements">
         <requirements>
-            <requirement type="package" version="0.1">ffindex-dbkit</requirement>
+            <requirement type="package" version="0.2">ffindex-dbkit</requirement>
             <yield />
         </requirements>
     </xml>
     <xml name="ffindex_single_inputs">
-        <param name="ffdata" type="data" format="ffdata" label="PDB Database" help="Database Data file." />
-        <param name="ffindex" type="data" format="ffindex" label="PDB Database Index" help="Database Index file." />
+        <param name="ffdata" type="data" format="ffdata" label="Database" help="Database Data file." />
+        <param name="ffindex" type="data" format="ffindex" label="Database Index" help="Database Index file." />
     </xml>
 
     <xml name="citations">

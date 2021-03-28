@@ -1,12 +1,8 @@
-from os.path import isfile
+from os.path import getsize, isfile
 
 
 class DBKit:
     def __init__(self, indexFile, databaseFile):
-        if not isfile(indexFile):
-            raise Exception("Index file not found: %s." % indexFile)    
-        if not isfile(databaseFile):
-            raise Exception("Database file not found: %s." % databaseFile)    
         self.databaseFile = databaseFile
         self.index = dict()
         with open(indexFile) as file:
@@ -34,3 +30,29 @@ class DBKit:
             return True
         else:
             return False
+
+    def getIndex(self):
+        return self.index
+
+
+def writeEntry(identifier, fileName, outputIndex, outputDatabase):
+    if isfile(outputDatabase):
+        currentSize = getsize(outputDatabase)
+    else:
+        currentSize = 0
+    if isfile(fileName):
+        entrySize = getsize(fileName)
+    else:
+        entrySize = 0
+    if entrySize > 0:
+        outputIndexFile = open(outputIndex, "a+")
+        outputIndexFile.write("%s\t%s\t%s\n" % (identifier, currentSize, entrySize))
+        tempFile = open(fileName, "r")
+        databaseFile = open(outputDatabase, "a+")
+        databaseFile.write(tempFile.read())
+        databaseFile.close()
+        tempFile.close()
+        outputIndexFile.close()
+        return True
+    else:
+        return False

@@ -3,7 +3,7 @@
     <macros>
         <import>macros.xml</import>
     </macros>
-    <expand macro="requirements"/>
+    <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p targets &&
         #for target in $targets
@@ -36,23 +36,23 @@
         #end if
     ]]>    </command>
     <inputs>
-        <param name="targets" format="hhr" multiple="true" label="Target profiles" help="Homology search result of target/query profiles in 'hhr' format."/>
+        <param name="targets" format="hhr" multiple="true" label="Target profiles" help="Homology search result of target/query profiles in 'hhr' format." />
         <conditional name="input_type">
             <param name="input_type_selector" type="select" label="Identify interactions across sets?">
                 <option value="yes" selected="True">yes</option>
                 <option value="no">no</option>
             </param>
             <when value="yes">
-                <param name="inputs" format="hhr" multiple="true" label="Input profiles" help="Homology search results of input profiles in 'hhr' format."/>
+                <param name="inputs" format="hhr" multiple="true" label="Input profiles" help="Homology search results of input profiles in 'hhr' format." />
             </when>
-            <when value="no"/>
+            <when value="no" />
         </conditional>
-        <param name="crossreference" format="tabular" type="data" label="Cross reference" help="Cross reference of interacting proteins `first_id metadata_id second_id`."/>
-        <param name="minscore" type="integer" value="10" min="1" max="200" label="Score threshold" help="Matching interaction pairs with a score lower than this threshold will be excluded."/>
-        <expand macro="logfile"/>
+        <param name="crossreference" format="tabular" type="data" label="Cross reference" help="Cross reference of interacting proteins `first_id metadata_id second_id`." />
+        <param name="minscore" type="integer" value="10" min="1" max="200" label="Score threshold" help="Matching interaction pairs with a score lower than this threshold will be excluded." />
+        <expand macro="logfile" />
     </inputs>
     <outputs>
-        <data format="tabular" name="output" label="SPRING min-Z Table"/>
+        <data format="tabular" name="output" label="SPRING min-Z Table" />
         <data format="txt" name="log" label="SPRING min-Z Log">
             <filter>logfile</filter>
         </data>
@@ -61,37 +61,37 @@
         <test expect_num_outputs="1">
             <param name="targets">
                 <collection type="list">
-                    <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr"/>
-                    <element name="NP_000290.2.hhr" value="minz/NP_000290.2.hhr" ftype="hhr"/>
-                    <element name="NP_000548.2.hhr" value="minz/NP_000548.2.hhr" ftype="hhr"/>
-                    <element name="NP_000836.2.hhr" value="minz/NP_000836.2.hhr" ftype="hhr"/>
+                    <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr" />
+                    <element name="NP_000290.2.hhr" value="minz/NP_000290.2.hhr" ftype="hhr" />
+                    <element name="NP_000548.2.hhr" value="minz/NP_000548.2.hhr" ftype="hhr" />
+                    <element name="NP_000836.2.hhr" value="minz/NP_000836.2.hhr" ftype="hhr" />
                 </collection>
             </param>
             <conditional name="input_type">
-                <param name="input_type_selector" value="false"/>
+                <param name="input_type_selector" value="no" />
             </conditional>
-            <param name="crossreference" value="minz/pdb70_random.txt"/>
-            <output name="output" file="minz/pdb70_result.0.txt"/>
+            <param name="crossreference" value="minz/pdb70_random.txt" />
+            <output name="output" file="minz/pdb70_result.0.txt" />
         </test>
         <test expect_num_outputs="1">
             <param name="targets">
                 <collection type="list">
-                    <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr"/>
+                    <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr" />
                 </collection>
             </param>
             <conditional name="input_type">
-                <param name="input_type_selector" value="true"/>
+                <param name="input_type_selector" value="yes" />
                 <param name="inputs">
                     <collection type="list">
-                        <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr"/>
-                        <element name="NP_000290.2.hhr" value="minz/NP_000290.2.hhr" ftype="hhr"/>
-                        <element name="NP_000548.2.hhr" value="minz/NP_000548.2.hhr" ftype="hhr"/>
-                        <element name="NP_000836.2.hhr" value="minz/NP_000836.2.hhr" ftype="hhr"/>
+                        <element name="NP_000282.1.hhr" value="minz/NP_000282.1.hhr" ftype="hhr" />
+                        <element name="NP_000290.2.hhr" value="minz/NP_000290.2.hhr" ftype="hhr" />
+                        <element name="NP_000548.2.hhr" value="minz/NP_000548.2.hhr" ftype="hhr" />
+                        <element name="NP_000836.2.hhr" value="minz/NP_000836.2.hhr" ftype="hhr" />
                     </collection>
                 </param>
             </conditional>
-            <param name="crossreference" value="minz/pdb70_random.txt"/>
-            <output name="output" file="minz/pdb70_result.1.txt"/>
+            <param name="crossreference" value="minz/pdb70_random.txt" />
+            <output name="output" file="minz/pdb70_result.1.txt" />
         </test>
     </tests>
     <help><![CDATA[
@@ -103,5 +103,5 @@ Putative interactions are identified by evaluating the min-Z score.
 The min-Z is the smaller of the two Z-scores for a pair of sequences matching an existing protein-protein complex structure.
 
     ]]>    </help>
-    <expand macro="citations"/>
+    <expand macro="citations" />
 </tool>

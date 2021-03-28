@@ -5,7 +5,7 @@
             <yield />
         </requirements>
     </xml>
-    <token name="@TOOL_VERSION@">0.1</token>
+    <token name="@TOOL_VERSION@">0.2</token>
     <token name="@VERSION_SUFFIX@">0</token>
 
     <xml name="ffindex_single_inputs">
@@ -41,6 +41,10 @@
                         <validator type="no_options" message="No indices are available" />
                     </options>
                 </param>
+                <param name="zipped" type="select" label="Zipped entries in PDB database?" help="">
+                    <option value="" selected="true">No</option>
+                    <option value="gz">Yes</option>
+                </param>
             </when>
             <when value="history">
                 <expand macro="ffindex_single_inputs" />
@@ -72,6 +76,7 @@
         #if $pdb_source.pdb_source_selector == 'indexed':
             -d '${pdb_source.pdb.fields.path}.ffdata'
             -i '${pdb_source.pdb.fields.path}.ffindex'
+            -z '$pdb_source.zipped'
         #else
             -d '$pdb_source.ffdata'
             -i '$pdb_source.ffindex'

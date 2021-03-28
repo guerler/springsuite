@@ -18,6 +18,7 @@
         -il '$advanced.idlength'
         -ic '$advanced.idcase'
         -ie '$advanced.idextension'
+        -ip '$advanced.idprefix'
     ]]>    </command>
     <inputs>
         <param name="input" type="data" format="tabular" label="List of Identifiers" help="Specify a list containing all entry identifiers to be downloaded." />
@@ -28,7 +29,12 @@
                 <option value="false">No formatting</option>
             </param>
             <when value="true">
-                <param name="idextension" type="text" optional="true" label="Identifier Extensions" help="Specify the extension of the identifier" />
+                <param name="idprefix" type="text" optional="true" label="Identifier Prefix" help="Specify the prefix of the identifier">
+                    <validator type="regex" message="Please only use letters, numbers or underscores">^[a-zA-Z.]+$</validator>
+                </param>
+                <param name="idextension" type="text" optional="true" label="Identifier Extensions" help="Specify the extension of the identifier">
+                    <validator type="regex" message="Please only use letters, numbers or underscores">^[a-zA-Z.]+$</validator>
+                </param>
                 <param name="idlength" type="integer" label="Identifier Length" value="0" min="0" max="20" help="Specify the length of the identifier (disable=0)." />
                 <param name="idcase" type="select" label="Identifier Case" display="radio" help="Choose to format the identifier by changing its case (optional).">
                     <option value="">Unformatted</option>
@@ -37,6 +43,7 @@
                 </param>
             </when>
             <when value="false">
+                <param name="idprefix" type="hidden" value="" />
                 <param name="idextension" type="hidden" value="" />
                 <param name="idlength" type="hidden" value="0" />
                 <param name="idcase" type="hidden" value="" />
@@ -52,7 +59,7 @@
         </data>
     </outputs>
     <tests>
-        <test>
+        <test expect_num_outputs="2">
             <param name="input" value="create/sequences.tabular" ftype="tabular" />
             <param name="inputs" value="create/NP_000282.1.hhr,create/NP_000290.2.hhr,create/NP_000548.2.hhr,create/NP_000836.2.hhr" />
             <conditional name="advanced">

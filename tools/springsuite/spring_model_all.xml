@@ -38,8 +38,8 @@
             </conditional>
             <conditional name="pdb_source">
                 <param name="pdb_source_selector" value="history" />
-                <param name="ffindex" value="model/pdb_structures.ffindex" />
-                <param name="ffdata" value="model/pdb_structures.ffdata" />
+                <param name="ffindex" value="model/pdb.ffindex" />
+                <param name="ffdata" value="model/pdb.ffdata" />
             </conditional>
             <param name="crossreference" value="model/crossreference.txt" />
             <param name="logfile" value="true" />

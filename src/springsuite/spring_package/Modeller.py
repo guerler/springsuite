@@ -9,15 +9,16 @@ from spring_package.Molecule import Molecule
 from spring_package.Utilities import getChain, getCrossReference, getName, getTemplates
 
 
-def createPDB(identifier, pdbDatabase, outputName):
+def createPDB(identifier, pdbDatabase, outputName, zipped=None):
     pdb = getName(identifier)
-    pdbDatabaseId = "%s.pdb" % pdb
-    return pdbDatabase.createFile(pdbDatabaseId, outputName)
+    pdbDatabaseId = "pdb%s.ent" % pdb
+    return pdbDatabase.createFile(pdbDatabaseId, outputName, zipped=zipped)
 
 
-def createMonomer(resultFile, identifier, pdbDatabase, outputName):
+def createMonomer(resultFile, identifier, pdbDatabase, outputName, zipped=None):
     print("Building model with: %s." % identifier)
-    if not createPDB(identifier, pdbDatabase, outputName):
+    if not createPDB(identifier, pdbDatabase, outputName, zipped=zipped):
+        print("Template not found in database [%s]" % identifier)
         return False
     template = Molecule(outputName)
     pdbChain = getChain(identifier)
@@ -129,10 +130,10 @@ def createModel(args):
     pdbDatabase = DBKit(args.index, args.database)
     crossReference = getCrossReference(args.cross)
     interfaceEnergy = Energy()
-    if not createMonomer(args.a_hhr, aTop, pdbDatabase, "temp/monomerA.pdb"):
+    if not createMonomer(args.a_hhr, aTop, pdbDatabase, "temp/monomerA.pdb", zipped=args.zipped):
         print("Warning: Failed to determine monomer model for %s." % args.a_hhr)
         return False
-    if not createMonomer(args.b_hhr, bTop, pdbDatabase, "temp/monomerB.pdb"):
+    if not createMonomer(args.b_hhr, bTop, pdbDatabase, "temp/monomerB.pdb", zipped=args.zipped):
         print("Warning: Failed to determine monomer model for %s." % args.b_hhr)
         return False
     maxScore = -9999
@@ -142,7 +143,7 @@ def createModel(args):
     for [aTemplate, bTemplate], zscore in getFrameworks(aTemplates, bTemplates, crossReference, minScore=minScore, maxTries=maxTries):
         print("Evaluating Complex Template: %s." % aTemplate)
         templateFile = "temp/template.pdb"
-        createPDB(aTemplate, pdbDatabase, templateFile)
+        createPDB(aTemplate, pdbDatabase, templateFile, zipped=args.zipped)
         templateMolecule = Molecule(templateFile)
         aTemplateChain = getChain(aTemplate)
         bTemplateChain = getChain(bTemplate)

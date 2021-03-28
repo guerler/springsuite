@@ -38,8 +38,8 @@ def main(args):
     for pdb in sorted(entries):
         print("Processing %s" % pdb)
         pdbFile = "temp/temp.pdb"
-        pdbDatabaseId = "%s.pdb" % pdb
-        pdbDatabase.createFile(pdbDatabaseId, pdbFile)
+        pdbDatabaseId = "pdb%s.ent" % pdb
+        pdbDatabase.createFile(pdbDatabaseId, pdbFile, zipped=args.zipped)
         try:
             mol = Molecule(pdbFile)
         except Exception as e:
@@ -77,5 +77,6 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--database', help='PDB Database files (ffdata)', required=True)
     parser.add_argument('-o', '--output', help='Output file', required=True)
     parser.add_argument('-g', '--log', help='Log File', required=True)
+    parser.add_argument('-z', '--zipped', help="Zipped extension in PDB Database", required=False, default="")
     args = parser.parse_args()
     main(args)

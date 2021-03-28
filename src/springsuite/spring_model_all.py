@@ -18,6 +18,7 @@ class ModelArguments:
         self.maxtries = args.maxtries
         self.maxclashes = args.maxclashes
         self.showtemplate = args.showtemplate
+        self.zipped = args.zipped
 
     def set(self, a_hhr, b_hhr, output):
         self.a_hhr = a_hhr
@@ -85,5 +86,6 @@ if __name__ == "__main__":
     parser.add_argument('-mt', '--maxtries', help='Maximum number of templates', type=int, default=20, required=False)
     parser.add_argument('-mc', '--maxclashes', help='Maximum fraction of clashes', type=float, default=0.1, required=False)
     parser.add_argument('-sr', '--showtemplate', help='Add reference template to model structure', required=False, default="true")
+    parser.add_argument('-z', '--zipped', help="Zipped extension in PDB Database", required=False, default="")
     args = parser.parse_args()
     main(args)
