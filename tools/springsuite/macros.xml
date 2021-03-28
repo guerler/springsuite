@@ -2,9 +2,6 @@
     <xml name="requirements">
         <requirements>
             <requirement type="package" version="@TOOL_VERSION@">springsuite</requirement>
-            <requirement type="package" version="1.78">biopython</requirement>
-            <requirement type="package" version="20170708">tmalign</requirement>
-            <requirement type="package" version="3.06">pulchra</requirement>
             <yield />
         </requirements>
     </xml>

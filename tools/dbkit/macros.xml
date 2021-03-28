@@ -1,7 +1,7 @@
 <macros>
     <xml name="requirements">
         <requirements>
-            <requirement type="package" version="0.1">ffindex-dbkit</requirement>
+            <requirement type="package" version="0.2">ffindex-dbkit</requirement>
             <yield />
         </requirements>
     </xml>
