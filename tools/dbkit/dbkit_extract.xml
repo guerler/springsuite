@@ -1,4 +1,4 @@
-<tool id="ffindex_dbkit_extract" name="DBKit Extract" version="0.1.1" license="MIT" profile="20.01">
+<tool id="ffindex_dbkit_extract" name="DBKit Extract" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" license="MIT" profile="20.01">
     <description>entries</description>
     <macros>
         <import>macros.xml</import>

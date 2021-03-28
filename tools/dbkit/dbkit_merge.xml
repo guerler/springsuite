@@ -1,4 +1,4 @@
-<tool id="ffindex_dbkit_merge" name="DBKit Merge" version="0.1.1" license="MIT" profile="20.01">
+<tool id="ffindex_dbkit_merge" name="DBKit Merge" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" license="MIT" profile="20.01">
     <description>two databases</description>
     <macros>
         <import>macros.xml</import>
@@ -11,7 +11,7 @@
         -oi '$outindex'
         -od '$outdata'
         -log '$logfile'
-    ]]></command>
+    ]]>    </command>
     <inputs>
         <expand macro="db_source" />
         <expand macro="db_source2" />
