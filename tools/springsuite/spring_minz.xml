@@ -34,7 +34,7 @@
             -o '$output'
             -l '$log'
         #end if
-    ]]>    </command>
+    ]]></command>
     <inputs>
         <param name="targets" format="hhr" multiple="true" label="Target profiles" help="Homology search result of target/query profiles in 'hhr' format." />
         <conditional name="input_type">
