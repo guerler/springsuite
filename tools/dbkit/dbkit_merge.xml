@@ -11,7 +11,7 @@
         -oi '$outindex'
         -od '$outdata'
         -log '$logfile'
-    ]]>    </command>
+    ]]></command>
     <inputs>
         <expand macro="db_source" />
         <expand macro="db_source2" />
