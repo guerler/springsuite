@@ -36,14 +36,14 @@
         #end if
     ]]>    </command>
     <inputs>
-        <param name="targets" type="data_collection" format="hhr" multiple="true" label="Target profiles" help="Homology search result of target/query profiles in 'hhr' format." />
+        <param name="targets" type="data_collection" collection_type="list" format="hhr" multiple="true" label="Target profiles" help="Homology search result of target/query profiles in 'hhr' format." />
         <conditional name="input_type">
             <param name="input_type_selector" type="select" label="Identify interactions across sets?">
                 <option value="yes" selected="True">yes</option>
                 <option value="no">no</option>
             </param>
             <when value="yes">
-                <param name="inputs" format="hhr" type="data_collection" multiple="true" label="Input profiles" help="Homology search results of input profiles in 'hhr' format." />
+                <param name="inputs" format="hhr" type="data_collection" collection_type="list" multiple="true" label="Input profiles" help="Homology search results of input profiles in 'hhr' format." />
             </when>
             <when value="no" />
         </conditional>

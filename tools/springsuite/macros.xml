@@ -6,7 +6,7 @@
         </requirements>
     </xml>
     <token name="@TOOL_VERSION@">0.2</token>
-    <token name="@VERSION_SUFFIX@">0</token>
+    <token name="@VERSION_SUFFIX@">1</token>
 
     <xml name="ffindex_single_inputs">
         <param name="ffdata" type="data" format="ffdata" label="PDB Database" help="Database Data file." />
