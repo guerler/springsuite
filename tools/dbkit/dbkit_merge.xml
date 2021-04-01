@@ -31,7 +31,7 @@
                 <param name="ffindex" value="create/first.ffindex" />
                 <param name="ffdata" value="create/first.ffdata" />
             </conditional>
-            <conditional name="db_source">
+            <conditional name="db_source2">
                 <param name="db_source_selector" value="history" />
                 <param name="ffindex" value="merge/second.ffindex" />
                 <param name="ffdata" value="merge/second.ffdata" />
@@ -44,7 +44,7 @@
                 <param name="db_source_selector" value="indexed" />
                 <param name="ffindex" value="first" />
             </conditional>
-            <conditional name="db_source">
+            <conditional name="db_source2">
                 <param name="db_source_selector" value="indexed" />
                 <param name="ffindex" value="second" />
             </conditional>
