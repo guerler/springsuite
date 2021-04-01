@@ -71,11 +71,11 @@
     </token>
     <token name="@db_source2@">
         #if $db_source.db_source_selector == 'indexed':
-            -sd '${db_source.ffindex.fields.path}.ffdata'
-            -si '${db_source.ffindex.fields.path}.ffindex'
+            -sd '${db_source2.ffindex.fields.path}.ffdata'
+            -si '${db_source2.ffindex.fields.path}.ffindex'
         #else
-            -sd '$db_source.ffdata'
-            -si '$db_source.ffindex'
+            -sd '$db_source2.ffdata'
+            -si '$db_source2.ffindex'
         #end if
     </token>
 </macros>
