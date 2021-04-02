@@ -21,7 +21,7 @@
         -ip '$advanced.idprefix'
     ]]>    </command>
     <inputs>
-        <param name="input" type="data" format="tabular" label="List of Identifiers" help="Specify a list containing all entry identifiers to be downloaded." />
+        <param name="input" type="data" format="tabular" label="List of Identifiers" help="Specify a list containing all entry identifiers to be considered." />
         <param name="inputs" type="data" format="txt" multiple="true" label="Specify your datasets" help="The datasets that you want to convert into an ffindex." />
         <conditional name="advanced">
             <param name="type" type="select" label="Identifier Formatting Options" help="">
@@ -73,8 +73,7 @@
 
 **What it does**
 
-This database creation tool downloads entries from an external resource and creates a datasets with all its contents. Additionally an index file is
-generated indicating the start and size of every entry within the database file. The tool can also operate on collections.
+This database creation tool creates ffindex/ffdata datatset pairs from collections.
     ]]>    </help>
     <expand macro="citations" />
 </tool>
