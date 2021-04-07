@@ -47,8 +47,8 @@ def writeEntry(identifier, fileName, outputIndex, outputDatabase):
     if entrySize > 0:
         outputIndexFile = open(outputIndex, "a+")
         outputIndexFile.write("%s\t%s\t%s\n" % (identifier, currentSize, entrySize))
-        tempFile = open(fileName, "r")
-        databaseFile = open(outputDatabase, "a+")
+        tempFile = open(fileName, "rb")
+        databaseFile = open(outputDatabase, "ab+")
         databaseFile.write(tempFile.read())
         databaseFile.close()
         tempFile.close()
