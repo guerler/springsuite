@@ -47,7 +47,7 @@ def findMatch(identifier, templates, databaseFile, pdbDatabase, evalue=0.0, zipp
                 fasta.write("%s" % seq)
             system("psiblast -query %s -db %s -out %s" % (fastaFile, databaseFile, resultFile))
         except Exception:
-            logFile.write("Warning: Failed to align sequence [%s].\n" % identifier)
+            return None
     maxMatch = None
     try:
         with open(resultFile) as file:
