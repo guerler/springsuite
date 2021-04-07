@@ -19,8 +19,8 @@
     </inputs>
     <outputs>
         <data format="ffindex" name="outindex" label="DBKit Extracted Index" />
-        <data format="ffdata" name="outdata" label="DBKit Extraced Database" />
-        <data format="txt" name="logfile" label="DBKit Extraced Log">
+        <data format="ffdata" name="outdata" label="DBKit Extracted Database" />
+        <data format="txt" name="logfile" label="DBKit Extracted Log">
             <filter>logfile</filter>
         </data>
     </outputs>

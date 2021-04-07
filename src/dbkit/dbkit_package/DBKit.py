@@ -21,10 +21,10 @@ class DBKit:
             entry = self.index[identifier]
             start = entry[0]
             size = entry[1]
-            with open(self.databaseFile) as file:
+            with open(self.databaseFile, "rb") as file:
                 file.seek(start)
                 content = file.read(size)
-                outputFile = open(outputName, "w")
+                outputFile = open(outputName, "wb")
                 outputFile.write(content)
                 outputFile.close()
             return True
