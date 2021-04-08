@@ -19,8 +19,8 @@
     </inputs>
     <outputs>
         <data format="ffindex" name="outindex" label="DBKit Extracted Index" />
-        <data format="ffdata" name="outdata" label="DBKit Extraced Database" />
-        <data format="txt" name="logfile" label="DBKit Extraced Log">
+        <data format="ffdata" name="outdata" label="DBKit Extracted Database" />
+        <data format="txt" name="logfile" label="DBKit Extracted Log">
             <filter>logfile</filter>
         </data>
     </outputs>
@@ -43,6 +43,15 @@
             </conditional>
             <output name="outindex" file="merge/second.ffindex" />
             <output name="outdata" file="merge/second.ffdata" />
+        </test>
+        <test>
+            <param name="list" value="create/pdb_gz.tabular" />
+            <conditional name="db_source">
+                <param name="db_source_selector" value="indexed" />
+                <param name="ffindex" value="first_gz" />
+            </conditional>
+            <output name="outindex" file="extract/third.ffindex" />
+            <output name="outdata" file="extract/third.ffdata" />
         </test>
     </tests>
     <help><![CDATA[

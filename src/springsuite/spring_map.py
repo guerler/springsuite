@@ -38,13 +38,16 @@ def findMatch(identifier, templates, databaseFile, pdbDatabase, evalue=0.0, zipp
         resultDir = "temp/%s" % resultSub
         if not isdir(resultDir):
             mkdir(resultDir)
-        pdbFile, pdbChain = getPDB(identifier, pdbDatabase, zipped=None)
-        mol = Molecule(pdbFile)
-        seq = mol.getSequence(pdbChain)
-        with open(fastaFile, "w") as fasta:
-            fasta.write(">%s\n" % identifier)
-            fasta.write("%s" % seq)
-        system("psiblast -query %s -db %s -out %s" % (fastaFile, databaseFile, resultFile))
+        pdbFile, pdbChain = getPDB(identifier, pdbDatabase, zipped=zipped)
+        try:
+            mol = Molecule(pdbFile)
+            seq = mol.getSequence(pdbChain)
+            with open(fastaFile, "w") as fasta:
+                fasta.write(">%s\n" % identifier)
+                fasta.write("%s" % seq)
+            system("psiblast -query %s -db %s -out %s" % (fastaFile, databaseFile, resultFile))
+        except Exception:
+            return None
     maxMatch = None
     try:
         with open(resultFile) as file:
