@@ -50,9 +50,9 @@ def getCrossReference(crossReferenceFile, allPartners=False):
     return crossReference
 
 
-def getTemplates(hhrFile, minScore=10):
+def getTemplates(hhrFile, minScore=10, nTemplates=5):
     result = dict()
-    topTemplate = None
+    topTemplates = list()
     if isfile(hhrFile):
         with open(hhrFile) as file:
             for index, line in enumerate(file):
@@ -62,7 +62,7 @@ def getTemplates(hhrFile, minScore=10):
                     templateId = line[4:10]
                     templateScore = float(line[57:63])
                     if templateScore > minScore:
-                        if topTemplate is None:
-                            topTemplate = templateId
+                        if len(topTemplates) < nTemplates:
+                            topTemplates.append(templateId)
                         result[templateId] = templateScore
-    return topTemplate, result
+    return topTemplates, result

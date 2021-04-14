@@ -122,71 +122,73 @@ def createModel(args):
     bName = basename(args.b_hhr)
     print("Sequence A: %s" % aName)
     print("Sequence B: %s" % bName)
-    aTop, aTemplates = getTemplates(args.a_hhr)
-    bTop, bTemplates = getTemplates(args.b_hhr)
+    aTops, aTemplates = getTemplates(args.a_hhr)
+    bTops, bTemplates = getTemplates(args.b_hhr)
     if not isdir("temp"):
         mkdir("temp")
     outputName = args.output
     pdbDatabase = DBKit(args.index, args.database)
     crossReference = getCrossReference(args.cross)
     interfaceEnergy = Energy()
-    if not createMonomer(args.a_hhr, aTop, pdbDatabase, "temp/monomerA.pdb", zipped=args.zipped):
-        print("Warning: Failed to determine monomer model for %s." % args.a_hhr)
-        return False
-    if not createMonomer(args.b_hhr, bTop, pdbDatabase, "temp/monomerB.pdb", zipped=args.zipped):
-        print("Warning: Failed to determine monomer model for %s." % args.b_hhr)
-        return False
     maxScore = -9999
     maxInfo = None
     minScore = float(args.minscore)
     maxTries = int(args.maxtries)
-    for [aTemplate, bTemplate], zscore in getFrameworks(aTemplates, bTemplates, crossReference, minScore=minScore, maxTries=maxTries):
-        print("Evaluating Complex Template: %s." % aTemplate)
-        templateFile = "temp/template.pdb"
-        createPDB(aTemplate, pdbDatabase, templateFile, zipped=args.zipped)
-        templateMolecule = Molecule(templateFile)
-        aTemplateChain = getChain(aTemplate)
-        bTemplateChain = getChain(bTemplate)
-        if aTemplateChain == bTemplateChain:
-            bTemplateChain = "%s_0" % bTemplateChain
-        print("Evaluating chain %s and %s..." % (aTemplate, bTemplate))
-        biomolFound = False
-        for biomolNumber in templateMolecule.biomol:
-            bioMolecule = templateMolecule.createUnit(biomolNumber)
-            if (len(bioMolecule.calpha.keys()) > 1
-               and aTemplateChain in bioMolecule.calpha
-               and bTemplateChain in bioMolecule.calpha):
-                print("Evaluating biomolecule %i..." % biomolNumber)
-                bioMolecule.saveChain(aTemplateChain, "temp/template_0.pdb")
-                bioMolecule.saveChain(bTemplateChain, "temp/template_1.pdb")
-                try:
-                    coreScore, coreMolecule = TMalign("temp/monomerA.rebuilt.pdb", "temp/template_0.pdb")
-                    coreAligned = TMalignAlignment(bioMolecule, aTemplateChain)
-                    partnerScore, partnerMolecule = TMalign("temp/monomerB.rebuilt.pdb", "temp/template_1.pdb")
-                    partnerAligned = TMalignAlignment(bioMolecule, bTemplateChain)
-                except Exception as e:
-                    print("Warning: Failed TMalign [%s]." % bTemplateChain)
-                    print(str(e))
-                    continue
-                biomolFound = True
-                print("  zscore:\t%5.2f" % zscore)
-                tmscore = min(coreScore, partnerScore)
-                print("  tmscore:\t%5.2f" % tmscore)
-                energy = -interfaceEnergy.get(coreAligned, partnerAligned)
-                print("  energy:\t%5.2f" % energy)
-                clashes = interfaceEnergy.getClashes(coreMolecule, partnerMolecule)
-                print("  clashes:\t%5.2f" % clashes)
-                springscore = tmscore + energy * args.wenergy
-                print("  springscore:\t%5.2f" % springscore)
-                if springscore > maxScore and clashes < args.maxclashes:
-                    maxScore = springscore
-                    maxInfo = dict(aTemplate=aTemplate, bTemplate=bTemplate, springscore=springscore, tmscore=tmscore, energy=energy, clashes=clashes, zscore=zscore)
-                    coreMolecule.save(outputName, chainName="0")
-                    partnerMolecule.save(outputName, chainName="1", append=True)
-                    if args.showtemplate == "true":
-                        bioMolecule.save(outputName, append=True)
-            if biomolFound:
-                break
+    for aTop in aTops:
+        if not createMonomer(args.a_hhr, aTop, pdbDatabase, "temp/monomerA.pdb", zipped=args.zipped):
+            print("Warning: Failed to determine monomer model for %s." % args.a_hhr)
+            continue
+        for bTop in bTops:
+            if not createMonomer(args.b_hhr, bTop, pdbDatabase, "temp/monomerB.pdb", zipped=args.zipped):
+                print("Warning: Failed to determine monomer model for %s." % args.b_hhr)
+                continue
+            for [aTemplate, bTemplate], zscore in getFrameworks(aTemplates, bTemplates, crossReference, minScore=minScore, maxTries=maxTries):
+                print("Evaluating Complex Template: %s." % aTemplate)
+                templateFile = "temp/template.pdb"
+                createPDB(aTemplate, pdbDatabase, templateFile, zipped=args.zipped)
+                templateMolecule = Molecule(templateFile)
+                aTemplateChain = getChain(aTemplate)
+                bTemplateChain = getChain(bTemplate)
+                if aTemplateChain == bTemplateChain:
+                    bTemplateChain = "%s_0" % bTemplateChain
+                print("Evaluating chain %s and %s..." % (aTemplate, bTemplate))
+                biomolFound = False
+                for biomolNumber in templateMolecule.biomol:
+                    bioMolecule = templateMolecule.createUnit(biomolNumber)
+                    if (len(bioMolecule.calpha.keys()) > 1
+                    and aTemplateChain in bioMolecule.calpha
+                    and bTemplateChain in bioMolecule.calpha):
+                        print("Evaluating biomolecule %i..." % biomolNumber)
+                        bioMolecule.saveChain(aTemplateChain, "temp/template_0.pdb")
+                        bioMolecule.saveChain(bTemplateChain, "temp/template_1.pdb")
+                        try:
+                            coreScore, coreMolecule = TMalign("temp/monomerA.rebuilt.pdb", "temp/template_0.pdb")
+                            coreAligned = TMalignAlignment(bioMolecule, aTemplateChain)
+                            partnerScore, partnerMolecule = TMalign("temp/monomerB.rebuilt.pdb", "temp/template_1.pdb")
+                            partnerAligned = TMalignAlignment(bioMolecule, bTemplateChain)
+                        except Exception as e:
+                            print("Warning: Failed TMalign [%s]." % bTemplateChain)
+                            print(str(e))
+                            continue
+                        biomolFound = True
+                        print("  zscore:\t%5.2f" % zscore)
+                        tmscore = min(coreScore, partnerScore)
+                        print("  tmscore:\t%5.2f" % tmscore)
+                        energy = -interfaceEnergy.get(coreAligned, partnerAligned)
+                        print("  energy:\t%5.2f" % energy)
+                        clashes = interfaceEnergy.getClashes(coreMolecule, partnerMolecule)
+                        print("  clashes:\t%5.2f" % clashes)
+                        springscore = tmscore + energy * args.wenergy
+                        print("  springscore:\t%5.2f" % springscore)
+                        if springscore > maxScore and clashes < args.maxclashes:
+                            maxScore = springscore
+                            maxInfo = dict(aTemplate=aTemplate, bTemplate=bTemplate, springscore=springscore, tmscore=tmscore, energy=energy, clashes=clashes, zscore=zscore)
+                            coreMolecule.save(outputName, chainName="0")
+                            partnerMolecule.save(outputName, chainName="1", append=True)
+                            if args.showtemplate == "true":
+                                bioMolecule.save(outputName, append=True)
+                    if biomolFound:
+                        break
     if maxInfo is not None:
         print("Final Model:")
         for key in maxInfo:
